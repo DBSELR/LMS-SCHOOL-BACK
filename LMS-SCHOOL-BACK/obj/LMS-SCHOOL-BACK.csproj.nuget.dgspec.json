@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj": {}
+    "D:\\PROJECTS\\SCHOOL-LMS\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj": {}
   },
   "projects": {
-    "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj": {
+    "D:\\PROJECTS\\SCHOOL-LMS\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
+        "projectUniqueName": "D:\\PROJECTS\\SCHOOL-LMS\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
         "projectName": "LMS-SCHOOL-BACK",
-        "projectPath": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
+        "projectPath": "D:\\PROJECTS\\SCHOOL-LMS\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
         "packagesPath": "C:\\Users\\dbase\\.nuget\\packages\\",
-        "outputPath": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\obj\\",
+        "outputPath": "D:\\PROJECTS\\SCHOOL-LMS\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -44,12 +44,16 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[8.0.1, )"
@@ -65,6 +69,14 @@
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[9.0.4, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.4, )"
+            },
+            "QuestPDF": {
+              "target": "Package",
+              "version": "[2025.7.1, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -90,7 +102,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
