@@ -1,0 +1,70 @@
+wwwroot\Uploads\72f1edc6-18aa-4cb7-acb2-8d9afd0f62d0.pdf
+wwwroot\Uploads\a1f16b66-ea01-44e1-bd25-60f714c2d055.pdf
+wwwroot\Uploads\ApplicationsofComputer.pdf
+wwwroot\Uploads\assignments\ae75fed1-ed46-488f-a2bb-443433bdd2e7.pdf
+wwwroot\Uploads\assignments\d1ec7943-9a5a-462f-a197-bd552f0e2de8.pdf
+wwwroot\Uploads\Book - Software-Engineering PDF.pdf
+wwwroot\Uploads\bugs 160625.pdf
+wwwroot\Uploads\Bugs.pdf
+wwwroot\Uploads\c div.txt
+wwwroot\Uploads\COURSE FEEDBACK.pdf
+wwwroot\Uploads\COURSE_FEEDBACK_20250527194106.pdf
+wwwroot\Uploads\course-content\Agricultural_Engineering_Expanded.pdf
+wwwroot\Uploads\course-content\bugs 160625.pdf
+wwwroot\Uploads\course-content\calculus_08_Techniques_of_Integration.pdf
+wwwroot\Uploads\course-content\Chapter10_MomentOfInertia.pdf
+wwwroot\Uploads\course-content\DISTANCEANDTRANSPORTMODELS.pdf
+wwwroot\Uploads\course-content\file-sample_150kB.pdf
+wwwroot\Uploads\course-content\final0203-ltsn-basicdiff.pdf
+wwwroot\Uploads\course-content\free download 30 sec cartoon video for test - Google Search - Google Chrome 2025-06-18 10-53-38.mp4
+wwwroot\Uploads\course-content\gravity.pdf
+wwwroot\Uploads\course-content\Introducing-Our-New-Learning-Management-System (1).pptx
+wwwroot\Uploads\course-content\lecture8-fouriertransforms.pdf
+wwwroot\Uploads\course-content\leep203.pdf
+wwwroot\Uploads\course-content\mc-ty-apgp-2009-1.pdf
+wwwroot\Uploads\course-content\motion.pdf
+wwwroot\Uploads\course-content\React App - Google Chrome 2025-06-16 10-16-34.mp4
+wwwroot\Uploads\course-content\Soil_Science_Expanded.pdf
+wwwroot\Uploads\course-content\velocity.pdf
+wwwroot\Uploads\course-content\ztransforms-web.pdf
+wwwroot\Uploads\ERP SOLUTION.pdf
+wwwroot\Uploads\EXAM  UNIT TEST RETEST.docx
+wwwroot\Uploads\exams\Agricultural_Economics_and_Extension_Expanded.pdf
+wwwroot\Uploads\exams\Agricultural_Engineering_Expanded.pdf
+wwwroot\Uploads\exams\Agronomy_&_Crop_Production_Expanded.pdf
+wwwroot\Uploads\exams\ApplicationsofComputer.pdf
+wwwroot\Uploads\exams\LMS Brocher Content .pdf
+wwwroot\Uploads\exams\Plant_Protection_Expanded.pdf
+wwwroot\Uploads\exams\programs_input_class9-converted.pdf
+wwwroot\Uploads\exams\Soil_Science_Expanded.pdf
+wwwroot\Uploads\faculty_details_report.csv
+wwwroot\Uploads\library\3366.pdf
+wwwroot\Uploads\library\bugs - 30-05-2025.pdf
+wwwroot\Uploads\library\ec2d2ebe-aae7-4d47-ae4e-06de0a46cb64.pdf
+wwwroot\Uploads\library\PHP Basic to Advance.pdf
+wwwroot\Uploads\library\Soil_Science_Expanded.pdf
+wwwroot\Uploads\library\UNIT 2.pdf
+wwwroot\Uploads\LiveClasses\React App - Google Chrome 2025-06-16 10-16-34.mp4
+wwwroot\Uploads\LiveClasses\SampleVideo_1280x720_1mb.mp4
+wwwroot\Uploads\LiveClasses\SampleVideo_1280x720_2mb.mp4
+wwwroot\Uploads\notices\02d33481-316a-433c-a959-11cadd39c138.jpg
+wwwroot\Uploads\notices\34ebdf3d-520d-4d08-8fb3-5a3ed3a4fd3c.pdf
+wwwroot\Uploads\notices\389d27a2-0858-44f2-9236-7b05ad0f52cd.jpg
+wwwroot\Uploads\notices\5b4e6582-1b44-46bb-9a5e-329c0f82693a.jpg
+wwwroot\Uploads\notices\8e4678d3-be85-45ee-94cd-c0a6a8724f60.pdf
+wwwroot\Uploads\notices\98feb1fb-8d4e-498a-bc2b-17308ccd49ce.jpg
+wwwroot\Uploads\notices\b3e4c760-d0ce-4362-bec8-8212775ac92b.pdf
+wwwroot\Uploads\notices\b8a75df4-cc3c-4b53-b760-8bbf7c11e711.pdf
+wwwroot\Uploads\PHP Basic to Advance.pdf
+wwwroot\Uploads\Practiceexams\Agricultural_Economics_and_Extension_Expanded.pdf
+wwwroot\Uploads\Practiceexams\Agricultural_Engineering_Expanded.pdf
+wwwroot\Uploads\Practiceexams\empty.txt
+wwwroot\Uploads\Practiceexams\gravity.pdf
+wwwroot\Uploads\Practiceexams\Soil_Science_Expanded.pdf
+wwwroot\Uploads\Practiceexams\velocity.pdf
+wwwroot\Uploads\programs_input_class9-converted.pdf
+wwwroot\Uploads\programs_input_class9-converted_11111111111111111.pdf
+wwwroot\Uploads\Syllabus_format (1).docx
+wwwroot\Uploads\Syllabus_format.docx
+wwwroot\Uploads\TicketHistory\Soil_Science_Expanded.pdf
+wwwroot\Uploads\Tickets\Agricultural_Engineering_Expanded.pdf

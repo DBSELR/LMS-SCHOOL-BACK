@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>LMS_SCHOOL_BACK</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BCrypt.Net-Next">
+      <HintPath>..\..\..\..\DBS-LMS\LMS_17062025\new-lms-back-main\LMS\bin\Debug\net8.0\BCrypt.Net-Next.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\DBS-LMS\LMS_17062025\new-lms-back-main\LMS\bin\Debug\net8.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="QuestPDF">
+      <HintPath>..\..\..\..\DBS-LMS\LMS_17062025\new-lms-back-main\LMS\bin\Debug\net8.0\QuestPDF.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

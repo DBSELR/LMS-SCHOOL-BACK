@@ -1,0 +1,126 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|d:\\work_svn\\school-lms\\lms-school-backend\\lms-school-back\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|d:\\work_svn\\school-lms\\lms-school-backend\\lms-school-back\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|d:\\work_svn\\school-lms\\lms-school-backend\\lms-school-back\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|solutionrelative:data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|d:\\work_svn\\school-lms\\lms-school-backend\\lms-school-back\\controllers\\contentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|solutionrelative:controllers\\contentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|d:\\work_svn\\school-lms\\lms-school-backend\\lms-school-back\\controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|solutionrelative:controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|d:\\work_svn\\school-lms\\lms-school-backend\\lms-school-back\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{51B33283-2123-406F-BC07-2D8134D9B6DC}|LMS-SCHOOL-BACK.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "Data\\AppDbContext.cs",
+              "ToolTip": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "Data\\AppDbContext.cs",
+              "ViewState": "AgIAAFUAAAAAAAAAAAAQwAAAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T10:25:33.161Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ContentController.cs",
+              "DocumentMoniker": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Controllers\\ContentController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ContentController.cs",
+              "ToolTip": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Controllers\\ContentController.cs",
+              "RelativeToolTip": "Controllers\\ContentController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T10:22:09.725Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AdminController.cs",
+              "DocumentMoniker": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Controllers\\AdminController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AdminController.cs",
+              "ToolTip": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Controllers\\AdminController.cs",
+              "RelativeToolTip": "Controllers\\AdminController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T10:18:35.741Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAABMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-16T10:16:16.544Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAAAGMAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T10:13:12.901Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACKEND\\LMS-SCHOOL-BACK\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-16T10:15:58.411Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
