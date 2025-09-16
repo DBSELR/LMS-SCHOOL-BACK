@@ -2747,11 +2747,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\PROJECTS\\SCHOOL-LMS\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
+      "projectUniqueName": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
       "projectName": "LMS-SCHOOL-BACK",
-      "projectPath": "D:\\PROJECTS\\SCHOOL-LMS\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
+      "projectPath": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
       "packagesPath": "C:\\Users\\dbase\\.nuget\\packages\\",
-      "outputPath": "D:\\PROJECTS\\SCHOOL-LMS\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\obj\\",
+      "outputPath": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -2784,7 +2784,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net8.0": {
@@ -2842,7 +2842,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
