@@ -24,6 +24,9 @@ namespace LMS.Controllers
         private readonly IAuthService _authService;
         private readonly IHubContext<SessionHub> _hubContext;
 
+
+
+
         public AuthController(IConfiguration configuration, IAuthService authService, IHubContext<SessionHub> hubContext)
         {
             _configuration = configuration;
