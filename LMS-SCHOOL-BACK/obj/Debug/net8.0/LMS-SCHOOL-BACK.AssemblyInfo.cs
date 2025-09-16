@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LMS-SCHOOL-BACK")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4bbc019bb44783ff94eed411b9445cc31f2c44bc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+68284d2b082b509e0e829f3d47da5a53ef4121dc")]
 [assembly: System.Reflection.AssemblyProductAttribute("LMS-SCHOOL-BACK")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LMS-SCHOOL-BACK")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
