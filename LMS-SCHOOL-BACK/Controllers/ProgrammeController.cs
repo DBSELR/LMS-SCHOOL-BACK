@@ -367,7 +367,7 @@ namespace LMS.Controllers
 
                     foreach (var dto in batch)
                     {
-                        using (SqlCommand cmd = new SqlCommand("Sp_UpsertSubjectUnit", conn))
+                        using (SqlCommand cmd = new SqlCommand("Sp_UpsertBatches", conn))
                         {
                             cmd.CommandType = CommandType.StoredProcedure;
 
