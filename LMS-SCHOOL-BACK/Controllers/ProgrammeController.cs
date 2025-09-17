@@ -353,7 +353,6 @@ namespace LMS.Controllers
             return NoContent();
         }
 
-
         [HttpPost("insertBatches")]
         public async Task<IActionResult> UpsertBatches([FromBody] List<BatchesDto> batch)
         {
