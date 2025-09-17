@@ -185,3 +185,5 @@ Icon
 # JetBrains Rider
 .idea/
 *.sln.iml
+/LMS-SCHOOL-BACK/bin/Debug/net8.0/cs/Microsoft.Data.SqlClient.resources.dll
+/.gitignore
