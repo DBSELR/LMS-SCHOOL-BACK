@@ -268,7 +268,6 @@ builder.Services.AddHttpClient();
 //});
 
 // ✅ Enable CORS for React app
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
