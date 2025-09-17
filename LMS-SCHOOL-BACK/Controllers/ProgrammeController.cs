@@ -405,6 +405,18 @@ namespace LMS.Controllers
             return Ok(result);
         }
 
+        [HttpDelete("DeleteBatchById")]
+        public async Task<IActionResult> DeleteBatchById(int Bid)
+        {
+            using var conn = new SqlConnection(_connection);
+            using var cmd = new SqlCommand("sp_DeleteBatchById", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Bid", Bid);
+            await conn.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
+            return NoContent();
+        }
+
         public class BatchesDto
         {
             public int Bid { get; set; } = 0;
