@@ -101,7 +101,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using LMS.Data;
-//using QuestPDF.Infrastructure;
+using QuestPDF.Infrastructure;
 using System.Text.Json.Serialization;
 using LMS.Services;
 using Microsoft.Extensions.FileProviders;
@@ -112,7 +112,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // ✅ Enable community license for QuestPDF
-//QuestPDF.Settings.License = LicenseType.Community;
+QuestPDF.Settings.License = LicenseType.Community;
 
 // ✅ Register controllers with cycle-safe JSON serialization
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -272,7 +272,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://edvedha.dbasesolutions.in", "https://www.edvedha.dbasesolutions.in")
+        policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "https://edvedha.dbasesolutions.in", "https://www.edvedha.dbasesolutions.in")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); //  CRITICAL for cookie/session use

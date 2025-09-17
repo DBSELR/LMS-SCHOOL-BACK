@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using LMS.Data;
 using LMS.Models;
 using System.Data;
+using Microsoft.Extensions.Configuration;
+using static ExaminationController;
 
 namespace LMS.Controllers
 {
@@ -337,6 +339,50 @@ namespace LMS.Controllers
             await conn.OpenAsync();
             await cmd.ExecuteNonQueryAsync();
             return NoContent();
+        }
+
+        [HttpPost("insertBatches")]
+        public async Task<IActionResult> UpsertBatches([FromBody] List<BatchesDto> batch)
+        {
+            if (batch == null || batch.Count == 0)
+                return BadRequest(new { message = "No batch provided." });
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connection))
+                {
+                    await conn.OpenAsync();
+
+                    foreach (var dto in batch)
+                    {
+                        using (SqlCommand cmd = new SqlCommand("Sp_UpsertSubjectUnit", conn))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.AddWithValue("@Bid", dto.Bid);
+                            cmd.Parameters.AddWithValue("@BatchName", dto.BatchName);
+                            cmd.Parameters.AddWithValue("@StartDate", dto.StartDate);
+                            cmd.Parameters.AddWithValue("@EndDate", dto.EndDate);
+
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+                    }
+                }
+
+                return Ok(new { message = "Batch saved successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Database error", error = ex.Message });
+            }
+        }
+
+        public class BatchesDto
+        {
+            public int Bid { get; set; } = 0;
+            public string BatchName { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
         }
     }
 }
