@@ -389,6 +389,21 @@ namespace LMS.Controllers
             }
         }
 
+        [HttpGet("GetAllBatch")]
+        public async Task<IActionResult> GetAllBatch()
+        {
+            var result = new List<object>();
+            using var conn = new SqlConnection(_connection);
+            using var cmd = new SqlCommand("sp_GetAllBatches", conn) { CommandType = CommandType.StoredProcedure };
+
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+                result.Add(ReadRow(reader));
+
+            return Ok(result);
+        }
+
         [HttpGet("GetBatchById")]
         public async Task<IActionResult> GetBatchById(int Bid)
         {

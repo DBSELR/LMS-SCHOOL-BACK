@@ -3831,6 +3831,54 @@
   },
   {
     "ContainingType": "LMS.Controllers.ProgrammeController",
+    "Method": "DeleteBatchById",
+    "RelativePath": "api/Programme/DeleteBatchById",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Bid",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LMS.Controllers.ProgrammeController",
+    "Method": "GetBatchById",
+    "RelativePath": "api/Programme/GetBatchById",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Bid",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LMS.Controllers.ProgrammeController",
+    "Method": "UpsertBatches",
+    "RelativePath": "api/Programme/insertBatches",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "batch",
+        "Type": "System.Collections.Generic.List\u00601[[LMS.Controllers.ProgrammeController\u002BBatchesDto, LMS-SCHOOL-BACK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LMS.Controllers.ProgrammeController",
     "Method": "GetProgrammesWithSemesters",
     "RelativePath": "api/Programme/ProgrammesWithSemesters",
     "HttpMethod": "GET",
