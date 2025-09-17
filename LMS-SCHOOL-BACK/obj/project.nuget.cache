@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "pMZi1b+rMcw=",
+  "dgSpecHash": "mql82gfpeKc=",
   "success": true,
-  "projectFilePath": "D:\\work_svn\\School-Lms\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
+  "projectFilePath": "D:\\SCHOOL LMS\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK\\LMS-SCHOOL-BACK.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\dbase\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\dbase\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",
