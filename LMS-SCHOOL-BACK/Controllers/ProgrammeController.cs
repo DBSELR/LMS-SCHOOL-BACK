@@ -18,6 +18,18 @@ namespace LMS.Controllers
         private readonly ILogger<ProgrammeController> _logger;
         private readonly string _connection;
 
+        private Dictionary<string, object> ReadRow(SqlDataReader reader)
+        {
+            var row = new Dictionary<string, object>();
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                var name = reader.GetName(i);
+                var camel = char.ToLowerInvariant(name[0]) + name.Substring(1);
+                row[camel] = reader.IsDBNull(i) ? null : reader.GetValue(i);
+            }
+            return row;
+        }
+
         public ProgrammeController(AppDbContext context, ILogger<ProgrammeController> logger)
         {
             _context = context;
@@ -375,6 +387,22 @@ namespace LMS.Controllers
             {
                 return StatusCode(500, new { message = "Database error", error = ex.Message });
             }
+        }
+
+        [HttpGet("GetBatchById")]
+        public async Task<IActionResult> GetBatchById(int Bid)
+        {
+            var result = new List<object>();
+            using var conn = new SqlConnection(_connection);
+            using var cmd = new SqlCommand("sp_GetBatchById", conn)
+            { CommandType = CommandType.StoredProcedure };
+            cmd.Parameters.AddWithValue("@Bid", Bid);
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+                result.Add(ReadRow(reader));
+
+            return Ok(result);
         }
 
         public class BatchesDto
