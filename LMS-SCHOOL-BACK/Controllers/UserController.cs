@@ -84,9 +84,10 @@ namespace LMS.Controllers
                     Direction = ParameterDirection.Output
                 };
 
-            //cmd.Parameters.AddWithValue("@Username", dto.Username ?? string.Empty);
-          //  cmd.Parameters.AddWithValue("@PasswordHash", BCrypt.Net.BCrypt.HashPassword(dto.Password));
-            cmd.Parameters.AddWithValue("@Role", dto.Role);
+                //cmd.Parameters.AddWithValue("@Username", dto.Username ?? string.Empty);
+                //  cmd.Parameters.AddWithValue("@PasswordHash", BCrypt.Net.BCrypt.HashPassword(dto.Password));
+                cmd.Parameters.AddWithValue("@PasswordHash", "TEMP");
+                cmd.Parameters.AddWithValue("@Role", dto.Role);
             cmd.Parameters.AddWithValue("@Email", dto.Email);
             cmd.Parameters.AddWithValue("@FirstName", dto.FirstName);
             cmd.Parameters.AddWithValue("@LastName", dto.LastName);
