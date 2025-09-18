@@ -262,12 +262,21 @@
         {
             try
             {
+
+
                 using var conn = new SqlConnection(_connection);
                 using var cmd = new SqlCommand("sp_Professor_PostProfessor", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                cmd.Parameters.AddWithValue("@Username", request.Username ?? string.Empty);
-                cmd.Parameters.AddWithValue("@PasswordHash", BCrypt.Net.BCrypt.HashPassword(request.Password));
+                var usernameParam = new SqlParameter("@Username", SqlDbType.VarChar, 7)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+
+                // cmd.Parameters.AddWithValue("@Username", request.Username ?? string.Empty);
+                //  cmd.Parameters.AddWithValue("@PasswordHash", BCrypt.Net.BCrypt.HashPassword(request.Password));
+                cmd.Parameters.AddWithValue("@PasswordHash", "TEMP");
                 cmd.Parameters.AddWithValue("@Email", request.Email ?? string.Empty);
                 cmd.Parameters.AddWithValue("@FirstName", request.FirstName ?? string.Empty);
                 cmd.Parameters.AddWithValue("@LastName", request.LastName ?? string.Empty);
@@ -282,28 +291,62 @@
                 cmd.Parameters.AddWithValue("@EducationalBackground", request.EducationalBackground ?? string.Empty);
                 cmd.Parameters.AddWithValue("@ResearchInterests", request.ResearchInterests ?? string.Empty);
                 cmd.Parameters.AddWithValue("@TeachingRating", (object?)request.TeachingRating ?? DBNull.Value);
+                cmd.Parameters.Add(usernameParam);
 
                 await conn.OpenAsync();
                 await cmd.ExecuteNonQueryAsync();
 
-                return Ok(new { message = "Professor registered successfully." });
-            }
-            catch (SqlException ex)
-            {
-                // Handle common SQL constraint violations
-                if (ex.Number == 2627 || ex.Number == 2601) // Unique constraint violation
-                {
-                    return Conflict(new { error = "A professor with the same username or email already exists." });
-                }
+                var generatedUsername = usernameParam.Value?.ToString();
+                if (string.IsNullOrEmpty(generatedUsername))
+                    return StatusCode(500, "Username generation failed.");
 
-                // Other SQL errors
-                return StatusCode(500, new { error = $"SQL error {ex.Number}: {ex.Message}" });
+                // Step 2: Use username as password
+                var rawPassword = generatedUsername;
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
+
+                // Step 3: Update password
+                using var updateCmd = new SqlCommand("UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn);
+                updateCmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+                updateCmd.Parameters.AddWithValue("@Username", generatedUsername);
+                await updateCmd.ExecuteNonQueryAsync();
+
+                // Step 4: Get newly created UserId
+                using var userIdCmd = new SqlCommand("SELECT UserId FROM Users WHERE Username = @Username", conn);
+                userIdCmd.Parameters.AddWithValue("@Username", generatedUsername);
+                var userIdObj = await userIdCmd.ExecuteScalarAsync();
+                if (userIdObj == null)
+                    return StatusCode(500, "Failed to retrieve UserId.");
+                int userId = Convert.ToInt32(userIdObj);
+
+                return Ok(new
+                {
+                    Username = generatedUsername,
+                    Password = rawPassword,
+                    Message = "Professor registered successfully"
+                });
+
+                // return Ok(new { message = "Professor registered successfully." });
             }
             catch (Exception ex)
             {
-                // General fallback error
-                return StatusCode(500, new { error = $"Unexpected error: {ex.Message}" });
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
+            //catch (SqlException ex)
+            //{
+            //    // Handle common SQL constraint violations
+            //    if (ex.Number == 2627 || ex.Number == 2601) // Unique constraint violation
+            //    {
+            //        return Conflict(new { error = "A professor with the same username or email already exists." });
+            //    }
+
+            //    // Other SQL errors
+            //    return StatusCode(500, new { error = $"SQL error {ex.Number}: {ex.Message}" });
+            //}
+            //catch (Exception ex)
+            //{
+            //    // General fallback error
+            //    return StatusCode(500, new { error = $"Unexpected error: {ex.Message}" });
+            //}
         }
 
 
