@@ -78,8 +78,14 @@ namespace LMS.Controllers
             {
             using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
             using var cmd = new SqlCommand("sp_User_CreateUser", conn) { CommandType = CommandType.StoredProcedure };
-            cmd.Parameters.AddWithValue("@Username", dto.Username ?? string.Empty);
-            cmd.Parameters.AddWithValue("@PasswordHash", BCrypt.Net.BCrypt.HashPassword(dto.Password));
+
+                var usernameParam = new SqlParameter("@Username", SqlDbType.VarChar, 7)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+            //cmd.Parameters.AddWithValue("@Username", dto.Username ?? string.Empty);
+          //  cmd.Parameters.AddWithValue("@PasswordHash", BCrypt.Net.BCrypt.HashPassword(dto.Password));
             cmd.Parameters.AddWithValue("@Role", dto.Role);
             cmd.Parameters.AddWithValue("@Email", dto.Email);
             cmd.Parameters.AddWithValue("@FirstName", dto.FirstName);
@@ -88,22 +94,50 @@ namespace LMS.Controllers
             cmd.Parameters.AddWithValue("@DateOfBirth", dto.DateOfBirth);
             cmd.Parameters.AddWithValue("@Gender", dto.Gender);
             cmd.Parameters.AddWithValue("@Address", dto.Address);
+                cmd.Parameters.Add(usernameParam);
                 await conn.OpenAsync();
                 await cmd.ExecuteNonQueryAsync();
+                var generatedUsername = usernameParam.Value?.ToString();
+                if (string.IsNullOrEmpty(generatedUsername))
+                    return StatusCode(500, "Username generation failed.");
 
-                return Ok(new { message = "User registered successfully." });
-            }
-            catch (SqlException ex)
-            {
-                // Handle common SQL constraint violations
-                if (ex.Number == 2627 || ex.Number == 2601) // Unique constraint violation
+                // Step 2: Use username as password
+                var rawPassword = generatedUsername;
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
+
+                // Step 3: Update password
+                using var updateCmd = new SqlCommand("UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn);
+                updateCmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+                updateCmd.Parameters.AddWithValue("@Username", generatedUsername);
+                await updateCmd.ExecuteNonQueryAsync();
+
+                // Step 4: Get newly created UserId
+                using var userIdCmd = new SqlCommand("SELECT UserId FROM Users WHERE Username = @Username", conn);
+                userIdCmd.Parameters.AddWithValue("@Username", generatedUsername);
+                var userIdObj = await userIdCmd.ExecuteScalarAsync();
+                if (userIdObj == null)
+                    return StatusCode(500, "Failed to retrieve UserId.");
+                int userId = Convert.ToInt32(userIdObj);
+
+                return Ok(new
                 {
-                    return Conflict(new { error = "A user with the same username or email already exists." });
-                }
-
-                // Other SQL errors
-                return StatusCode(500, new { error = $"SQL error {ex.Number}: {ex.Message}" });
+                    Username = generatedUsername,
+                    Password = rawPassword,
+                    Message = "User registered successfully"
+                });
+               // return Ok(new { message = "User registered successfully." });
             }
+            //catch (SqlException ex)
+            //{
+            //    // Handle common SQL constraint violations
+            //    if (ex.Number == 2627 || ex.Number == 2601) // Unique constraint violation
+            //    {
+            //        return Conflict(new { error = "A user with the same username or email already exists." });
+            //    }
+
+            //    // Other SQL errors
+            //    return StatusCode(500, new { error = $"SQL error {ex.Number}: {ex.Message}" });
+            //}
             catch (Exception ex)
             {
                 // General fallback error
