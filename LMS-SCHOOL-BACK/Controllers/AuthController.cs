@@ -151,6 +151,7 @@ namespace LMS.Controllers
                     {
                         MMId = mmid,
                         MainMenuName = rdr["MainMenuName"] as string ?? string.Empty,
+                        Text = rdr["mtext"] as string ?? string.Empty,
                         Icon = rdr["micon"] as string ?? string.Empty,
                         MainPath = rdr["MPath"] as string, // may be null
                         Order = order
@@ -166,6 +167,7 @@ namespace LMS.Controllers
                 {
                     mmid = m.MMId,
                     mainMenuName = m.MainMenuName,
+                    text = m.Text,
                     icon = m.Icon,
                     path = m.MainPath,
                     order = m.Order
