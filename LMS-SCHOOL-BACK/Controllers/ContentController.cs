@@ -39,27 +39,47 @@ namespace LMS.Controllers
 
         [HttpPost("UploadFile")]
         public async Task<IActionResult> UploadFile(
-       [FromForm] IFormFile file,
-       [FromForm] int courseId,
-       [FromForm] string title,
-       [FromForm] string description,
-       [FromForm] string contentType,
-       [FromForm] int unitId,
-       [FromForm] string vurl)
+    [FromForm] IFormFile file,
+    [FromForm] int courseId,
+    [FromForm] string title,
+    [FromForm] string description,
+    [FromForm] string contentType,
+    [FromForm] int unitId,
+    [FromForm] string vurl)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("File is empty.");
 
-            var uploadsPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads", "course-content");
+            var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadsPath = Path.Combine(webRoot, "uploads", "course-content");
             Directory.CreateDirectory(uploadsPath);
 
-            var originalFileName = Path.GetFileName(file.FileName); // Keep exact original name
-            var filePath = Path.Combine(uploadsPath, originalFileName);
-            var fileUrl = $"/uploads/course-content/{originalFileName}";
+            // --- Build a safe, unique filename with timestamp ---
+            var originalFileName = Path.GetFileName(file.FileName);
+            var ext = Path.GetExtension(originalFileName);
+            var baseName = Path.GetFileNameWithoutExtension(originalFileName);
+
+            // sanitize base name: replace invalid chars & collapse spaces
+            var invalid = Path.GetInvalidFileNameChars();
+            baseName = new string(baseName.Select(ch => invalid.Contains(ch) ? '_' : ch).ToArray());
+            baseName = System.Text.RegularExpressions.Regex.Replace(baseName, @"\s+", "_");
+
+            var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmssfff"); // up to milliseconds
+            var storedFileName = $"{baseName}_{timestamp}{ext}";
+            var filePath = Path.Combine(uploadsPath, storedFileName);
+
+            // extremely unlikely collision guard
+            int counter = 0;
+            while (System.IO.File.Exists(filePath))
+            {
+                counter++;
+                storedFileName = $"{baseName}_{timestamp}_{counter}{ext}";
+                filePath = Path.Combine(uploadsPath, storedFileName);
+            }
 
             try
             {
-                using var stream = new FileStream(filePath, FileMode.Create); // Overwrites if exists
+                await using var stream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
                 await file.CopyToAsync(stream);
             }
             catch (Exception ex)
@@ -67,20 +87,25 @@ namespace LMS.Controllers
                 return StatusCode(500, "File save failed: " + ex.Message);
             }
 
-            int newId = 0;
+            var fileUrl = $"/uploads/course-content/{storedFileName}";
+            var uploadedAtUtc = DateTime.UtcNow;
+
+            int newId;
             using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-            using var cmd = new SqlCommand("sp_CourseContent_UploadFile", conn)
-            {
-                CommandType = CommandType.StoredProcedure
-            };
+            using var cmd = new SqlCommand("sp_CourseContent_UploadFile", conn) { CommandType = CommandType.StoredProcedure };
+
             cmd.Parameters.AddWithValue("@CourseId", courseId);
             cmd.Parameters.AddWithValue("@Title", title ?? "");
             cmd.Parameters.AddWithValue("@Description", description ?? "");
             cmd.Parameters.AddWithValue("@FileUrl", fileUrl);
-            cmd.Parameters.AddWithValue("@ContentType", contentType ?? "");
-            cmd.Parameters.AddWithValue("@UploadedAt", DateTime.UtcNow);
+            cmd.Parameters.AddWithValue("@ContentType", contentType ?? (file.ContentType ?? ""));
+            cmd.Parameters.AddWithValue("@UploadedAt", uploadedAtUtc);
             cmd.Parameters.AddWithValue("@UnitId", unitId);
-            cmd.Parameters.AddWithValue("@vurl", vurl ?? "");
+            cmd.Parameters.AddWithValue("@VUrl", vurl ?? ""); // <-- fix: not "@ContentType"
+
+            // (Optional) If your SP supports these, it's nice to store both names:
+            // cmd.Parameters.AddWithValue("@OriginalFileName", originalFileName);
+            // cmd.Parameters.AddWithValue("@StoredFileName", storedFileName);
 
             await conn.OpenAsync();
             var result = await cmd.ExecuteScalarAsync();
@@ -93,12 +118,78 @@ namespace LMS.Controllers
                 title,
                 description,
                 fileUrl,
-                contentType,
-                uploadedAt = DateTime.UtcNow,
+                storedFileName,
+                originalFileName,
+                contentType = contentType ?? file.ContentType,
+                uploadedAt = uploadedAtUtc,
                 unitId,
                 vurl
             });
         }
+
+
+        // [HttpPost("UploadFile")]
+        // public async Task<IActionResult> UploadFile(
+        //[FromForm] IFormFile file,
+        //[FromForm] int courseId,
+        //[FromForm] string title,
+        //[FromForm] string description,
+        //[FromForm] string contentType,
+        //[FromForm] int unitId,
+        //[FromForm] string vurl)
+        // {
+        //     if (file == null || file.Length == 0)
+        //         return BadRequest("File is empty.");
+
+        //     var uploadsPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads", "course-content");
+        //     Directory.CreateDirectory(uploadsPath);
+
+        //     var originalFileName = Path.GetFileName(file.FileName); // Keep exact original name
+        //     var filePath = Path.Combine(uploadsPath, originalFileName);
+        //     var fileUrl = $"/uploads/course-content/{originalFileName}";
+
+        //     try
+        //     {
+        //         using var stream = new FileStream(filePath, FileMode.Create); // Overwrites if exists
+        //         await file.CopyToAsync(stream);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, "File save failed: " + ex.Message);
+        //     }
+
+        //     int newId = 0;
+        //     using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+        //     using var cmd = new SqlCommand("sp_CourseContent_UploadFile", conn)
+        //     {
+        //         CommandType = CommandType.StoredProcedure
+        //     };
+        //     cmd.Parameters.AddWithValue("@CourseId", courseId);
+        //     cmd.Parameters.AddWithValue("@Title", title ?? "");
+        //     cmd.Parameters.AddWithValue("@Description", description ?? "");
+        //     cmd.Parameters.AddWithValue("@FileUrl", fileUrl);
+        //     cmd.Parameters.AddWithValue("@ContentType", contentType ?? "");
+        //     cmd.Parameters.AddWithValue("@UploadedAt", DateTime.UtcNow);
+        //     cmd.Parameters.AddWithValue("@UnitId", unitId);
+        //     cmd.Parameters.AddWithValue("@vurl", vurl ?? "");
+
+        //     await conn.OpenAsync();
+        //     var result = await cmd.ExecuteScalarAsync();
+        //     newId = Convert.ToInt32(result);
+
+        //     return Ok(new
+        //     {
+        //         id = newId,
+        //         courseId,
+        //         title,
+        //         description,
+        //         fileUrl,
+        //         contentType,
+        //         uploadedAt = DateTime.UtcNow,
+        //         unitId,
+        //         vurl
+        //     });
+        // }
 
 
 
