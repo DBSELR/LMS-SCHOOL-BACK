@@ -80,7 +80,7 @@ namespace LMS.Controllers
             cmd.Parameters.AddWithValue("@ContentType", contentType ?? "");
             cmd.Parameters.AddWithValue("@UploadedAt", DateTime.UtcNow);
             cmd.Parameters.AddWithValue("@UnitId", unitId);
-            cmd.Parameters.AddWithValue("@ContentType", vurl ?? "");
+            cmd.Parameters.AddWithValue("@vurl", vurl ?? "");
 
             await conn.OpenAsync();
             var result = await cmd.ExecuteScalarAsync();
