@@ -44,7 +44,8 @@ namespace LMS.Controllers
        [FromForm] string title,
        [FromForm] string description,
        [FromForm] string contentType,
-       [FromForm] int unitId)
+       [FromForm] int unitId,
+       [FromForm] string vurl)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("File is empty.");
@@ -79,6 +80,7 @@ namespace LMS.Controllers
             cmd.Parameters.AddWithValue("@ContentType", contentType ?? "");
             cmd.Parameters.AddWithValue("@UploadedAt", DateTime.UtcNow);
             cmd.Parameters.AddWithValue("@UnitId", unitId);
+            cmd.Parameters.AddWithValue("@ContentType", vurl ?? "");
 
             await conn.OpenAsync();
             var result = await cmd.ExecuteScalarAsync();
@@ -93,7 +95,8 @@ namespace LMS.Controllers
                 fileUrl,
                 contentType,
                 uploadedAt = DateTime.UtcNow,
-                unitId
+                unitId,
+                vurl
             });
         }
 
