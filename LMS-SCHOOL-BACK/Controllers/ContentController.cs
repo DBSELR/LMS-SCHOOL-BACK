@@ -101,7 +101,7 @@ namespace LMS.Controllers
             cmd.Parameters.AddWithValue("@ContentType", contentType ?? (file.ContentType ?? ""));
             cmd.Parameters.AddWithValue("@UploadedAt", uploadedAtUtc);
             cmd.Parameters.AddWithValue("@UnitId", unitId);
-            cmd.Parameters.AddWithValue("@VUrl", vurl ?? ""); // <-- fix: not "@ContentType"
+            cmd.Parameters.AddWithValue("@VUrl", vurl ?? ""); 
 
             // (Optional) If your SP supports these, it's nice to store both names:
             // cmd.Parameters.AddWithValue("@OriginalFileName", originalFileName);
