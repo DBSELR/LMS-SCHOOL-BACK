@@ -34,6 +34,25 @@ namespace LMS.Controllers
             _hubContext = hubContext;
         }
 
+        // DTOs for clean JSON (optional but tidy)
+        public sealed class SubMenuDto
+        {
+            public string MenuName { get; set; }      // submenuname
+            public string Text { get; set; }          // mtext
+            public string Path { get; set; }          // spath
+        }
+
+        public sealed class MenuDto
+        {
+            public int MMId { get; set; }             // mmid
+            public string MainMenuName { get; set; }  // MainMenuName
+            public string Text { get; set; }          // mtext
+            public string Icon { get; set; }          // micon
+            public string MainPath { get; set; }      // MPath
+            public int Order { get; set; }            // MORD
+            //public List<SubMenuDto> SubMenus { get; set; } = new();
+        }
+
         [HttpPost("Login")]
         public async Task<ActionResult<string>> Login([FromBody] LoginRequest loginRequest)
         {
@@ -44,16 +63,16 @@ namespace LMS.Controllers
             string role = "";
             bool hasOverdueFees = false;
 
-            using (var conn = new SqlConnection(connStr))
-            using (var cmd = new SqlCommand("sp_Auth_LoginWithFeeCheck", conn))
+            // 1) Get user + overdue fees
+            using (var connAuth = new SqlConnection(connStr))
+            using (var cmd = new SqlCommand("sp_Auth_LoginWithFeeCheck", connAuth))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Username", loginRequest.Username);
 
-                await conn.OpenAsync();
+                await connAuth.OpenAsync();
                 using var reader = await cmd.ExecuteReaderAsync();
 
-                // First result: user data
                 if (await reader.ReadAsync())
                 {
                     userId = reader.GetInt32(reader.GetOrdinal("UserId"));
@@ -65,39 +84,38 @@ namespace LMS.Controllers
                     return Unauthorized("Invalid credentials.");
                 }
 
-                // Second result: fee overdue check
                 await reader.NextResultAsync();
                 if (await reader.ReadAsync())
-                {
                     hasOverdueFees = reader.GetInt32(0) > 0;
-                }
             }
 
-            // Verify password in C#
+            // 2) Verify password
             if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, passwordHash))
                 return Unauthorized("Invalid credentials.");
 
+            // 3) Enforce fee rule for students
             if (role == "Student" && hasOverdueFees)
                 return StatusCode(403, new { message = "Access denied: Overdue fees detected." });
 
+            // 4) Issue token
             var token = await _authService.GenerateJwtTokenAsync(userId, role, loginRequest.Username, 14400);
 
-            // 4: Update session using stored procedure
+            // 5) Update session & capture old token (if any)
             string oldToken = null;
-            using (var conn = new SqlConnection(connStr))
-            using (var cmd = new SqlCommand("sp_UpdateUserSession", conn))
+            using (var connSession = new SqlConnection(connStr))
+            using (var cmd = new SqlCommand("sp_UpdateUserSession", connSession))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 cmd.Parameters.AddWithValue("@Token", token);
 
-                await conn.OpenAsync();
+                await connSession.OpenAsync();
                 var result = await cmd.ExecuteScalarAsync();
                 if (result != DBNull.Value && result != null)
                     oldToken = result.ToString();
             }
 
-            // 5: If old session exists ,notify logout
+            // 6) Notify old connections to logout
             if (!string.IsNullOrEmpty(oldToken))
             {
                 var connections = UserConnectionMapping.GetConnections(userId);
@@ -108,8 +126,131 @@ namespace LMS.Controllers
                 }
             }
 
-            return Ok(new { token });
+            // 7) Fetch MAIN MENUS ONLY (dedupe by mmid, keep ORDER BY MM.MORD from SP)
+            var menus = new List<MenuDto>();
+            var seen = new HashSet<int>();
+
+            using (var connMenu = new SqlConnection(connStr))
+            using (var cmd = new SqlCommand("sp_getmenuorderbyrole", connMenu))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@RoleName", role);
+
+                await connMenu.OpenAsync();
+                using var rdr = await cmd.ExecuteReaderAsync();
+
+                while (await rdr.ReadAsync())
+                {
+                    int mmid = rdr.GetInt32(rdr.GetOrdinal("mmid"));
+                    if (!seen.Add(mmid)) continue; // skip duplicates (from submenu rows)
+
+                    int order = 0;
+                    if (!(rdr["MORD"] is DBNull)) order = Convert.ToInt32(rdr["MORD"]);
+
+                    menus.Add(new MenuDto
+                    {
+                        MMId = mmid,
+                        MainMenuName = rdr["MainMenuName"] as string ?? string.Empty,
+                        Icon = rdr["micon"] as string ?? string.Empty,
+                        MainPath = rdr["MPath"] as string, // may be null
+                        Order = order
+                    });
+                }
+            }
+
+            // 8) Return token + flat main menu list
+            return Ok(new
+            {
+                token,
+                menus = menus.Select(m => new
+                {
+                    mmid = m.MMId,
+                    mainMenuName = m.MainMenuName,
+                    icon = m.Icon,
+                    path = m.MainPath,
+                    order = m.Order
+                })
+            });
         }
+
+
+
+        //[HttpPost("Login")]
+        //public async Task<ActionResult<string>> Login([FromBody] LoginRequest loginRequest)
+        //{
+        //    var connStr = _configuration.GetConnectionString("DefaultConnection");
+
+        //    int userId = 0;
+        //    string passwordHash = "";
+        //    string role = "";
+        //    bool hasOverdueFees = false;
+
+        //    using (var conn = new SqlConnection(connStr))
+        //    using (var cmd = new SqlCommand("sp_Auth_LoginWithFeeCheck", conn))
+        //    {
+        //        cmd.CommandType = CommandType.StoredProcedure;
+        //        cmd.Parameters.AddWithValue("@Username", loginRequest.Username);
+
+        //        await conn.OpenAsync();
+        //        using var reader = await cmd.ExecuteReaderAsync();
+
+        //        // First result: user data
+        //        if (await reader.ReadAsync())
+        //        {
+        //            userId = reader.GetInt32(reader.GetOrdinal("UserId"));
+        //            passwordHash = reader.GetString(reader.GetOrdinal("PasswordHash"));
+        //            role = reader.GetString(reader.GetOrdinal("Role"));
+        //        }
+        //        else
+        //        {
+        //            return Unauthorized("Invalid credentials.");
+        //        }
+
+        //        // Second result: fee overdue check
+        //        await reader.NextResultAsync();
+        //        if (await reader.ReadAsync())
+        //        {
+        //            hasOverdueFees = reader.GetInt32(0) > 0;
+        //        }
+        //    }
+
+        //    // Verify password in C#
+        //    if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, passwordHash))
+        //        return Unauthorized("Invalid credentials.");
+
+        //    if (role == "Student" && hasOverdueFees)
+        //        return StatusCode(403, new { message = "Access denied: Overdue fees detected." });
+
+        //    var token = await _authService.GenerateJwtTokenAsync(userId, role, loginRequest.Username, 14400);
+
+        //    // 4: Update session using stored procedure
+        //    string oldToken = null;
+        //    using (var conn = new SqlConnection(connStr))
+        //    using (var cmd = new SqlCommand("sp_UpdateUserSession", conn))
+        //    {
+        //        cmd.CommandType = CommandType.StoredProcedure;
+        //        cmd.Parameters.AddWithValue("@UserId", userId);
+        //        cmd.Parameters.AddWithValue("@Token", token);
+
+        //        await conn.OpenAsync();
+        //        var result = await cmd.ExecuteScalarAsync();
+        //        if (result != DBNull.Value && result != null)
+        //            oldToken = result.ToString();
+        //    }
+
+        //    // 5: If old session exists ,notify logout
+        //    if (!string.IsNullOrEmpty(oldToken))
+        //    {
+        //        var connections = UserConnectionMapping.GetConnections(userId);
+        //        foreach (var connId in connections)
+        //        {
+        //            await _hubContext.Clients.Client(connId)
+        //                .SendAsync("forceLogout", "Another login detected");
+        //        }
+        //    }
+
+        //    return Ok(new { token });
+        //}
 
         //private string GenerateJwtToken(int userId, string role, string username)
         //{
