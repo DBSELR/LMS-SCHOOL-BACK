@@ -1,4 +1,4 @@
-
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
@@ -37,91 +37,70 @@ namespace LMS.Controllers
             return row;
         }
 
+
+
         [HttpPost("UploadFile")]
         public async Task<IActionResult> UploadFile(
-    [FromForm] IFormFile? file,            // <-- optional now
+    [FromForm] IFormFile? file,                 // ← optional
     [FromForm] int courseId,
-    [FromForm] string title,
-    [FromForm] string description,
-    [FromForm] string contentType,
+    [FromForm] string? title,
+    [FromForm] string? description,
+    [FromForm] string? contentType,
     [FromForm] int unitId,
-    [FromForm] string vurl)                // <-- URL input
+    [FromForm] string? vurl)
         {
-            var hasFile = file != null && file.Length > 0;
-            var hasUrl = !string.IsNullOrWhiteSpace(vurl);
-
-            if (!hasFile && !hasUrl)
-                return BadRequest("Provide a file or a URL (vurl).");
-
-            string? originalFileName = null;
+            string? fileUrl = null;
             string? storedFileName = null;
-            string fileUrl;
+            var uploadedAtUtc = DateTime.UtcNow;
 
-            if (hasFile)
+            if (file != null && file.Length > 0)
             {
                 var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                 var uploadsPath = Path.Combine(webRoot, "uploads", "course-content");
                 Directory.CreateDirectory(uploadsPath);
 
-                originalFileName = Path.GetFileName(file!.FileName);
-                var ext = Path.GetExtension(originalFileName);
-                var baseName = Path.GetFileNameWithoutExtension(originalFileName);
+                var original = Path.GetFileName(file.FileName);
+                var ext = Path.GetExtension(original);
+                var baseName = Path.GetFileNameWithoutExtension(original);
 
-                var invalid = Path.GetInvalidFileNameChars();
-                baseName = new string(baseName.Select(ch => invalid.Contains(ch) ? '_' : ch).ToArray());
-                baseName = System.Text.RegularExpressions.Regex.Replace(baseName, @"\s+", "_");
+                // sanitize and timestamp
+                baseName = System.Text.RegularExpressions.Regex.Replace(baseName, @"[^A-Za-z0-9_\-]+", "_");
+                var ts = uploadedAtUtc.ToString("yyyyMMdd_HHmmssfff");
+                storedFileName = $"{baseName}_{ts}{ext}";
 
-                var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmssfff");
-                storedFileName = $"{baseName}_{timestamp}{ext}";
                 var filePath = Path.Combine(uploadsPath, storedFileName);
-
-                int counter = 0;
-                while (System.IO.File.Exists(filePath))
+                await using (var stream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
                 {
-                    counter++;
-                    storedFileName = $"{baseName}_{timestamp}_{counter}{ext}";
-                    filePath = Path.Combine(uploadsPath, storedFileName);
-                }
-
-                try
-                {
-                    await using var stream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
                     await file.CopyToAsync(stream);
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, "File save failed: " + ex.Message);
                 }
 
                 fileUrl = $"/uploads/course-content/{storedFileName}";
-            }
-            else
-            {
-                // URL-only upload path
-                fileUrl = vurl.Trim(); // store URL as FileUrl too for simpler UI retrieval
-            }
 
-            var uploadedAtUtc = DateTime.UtcNow;
+                // default contentType from uploaded file if not provided
+                if (string.IsNullOrWhiteSpace(contentType))
+                    contentType = file.ContentType;
+            }
 
             int newId;
-            await using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-            await using var cmd = new SqlCommand("sp_CourseContent_UploadFile", conn)
-            {
-                CommandType = CommandType.StoredProcedure
-            };
+            using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            using var cmd = new SqlCommand("sp_CourseContent_UploadFile", conn) { CommandType = CommandType.StoredProcedure };
 
             cmd.Parameters.AddWithValue("@CourseId", courseId);
             cmd.Parameters.AddWithValue("@Title", title ?? "");
             cmd.Parameters.AddWithValue("@Description", description ?? "");
-            cmd.Parameters.AddWithValue("@FileUrl", fileUrl);                               // local or vurl
-            cmd.Parameters.AddWithValue("@ContentType", contentType ?? (file?.ContentType ?? ""));
+
+            // Pass SQL NULL when no file uploaded
+            var pFileUrl = cmd.Parameters.Add("@FileUrl", SqlDbType.NVarChar, 1024);
+            pFileUrl.Value = (object?)fileUrl ?? DBNull.Value;
+
+            var pContentType = cmd.Parameters.Add("@ContentType", SqlDbType.NVarChar, 256);
+            pContentType.Value = (object?)contentType ?? DBNull.Value;
+
             cmd.Parameters.AddWithValue("@UploadedAt", uploadedAtUtc);
             cmd.Parameters.AddWithValue("@UnitId", unitId);
-            cmd.Parameters.AddWithValue("@VUrl", vurl ?? "");                               // also store raw URL
 
-            // Optional: keep names if your SP supports them
-            // cmd.Parameters.AddWithValue("@OriginalFileName", (object?)originalFileName ?? DBNull.Value);
-            // cmd.Parameters.AddWithValue("@StoredFileName", (object?)storedFileName ?? DBNull.Value);
+            var pVurl = cmd.Parameters.Add("@vurl", SqlDbType.NVarChar, 1024);
+            pVurl.Value = (object?)vurl ?? DBNull.Value;
 
             await conn.OpenAsync();
             var result = await cmd.ExecuteScalarAsync();
@@ -133,21 +112,15 @@ namespace LMS.Controllers
                 courseId,
                 title,
                 description,
-                fileUrl,                 // will be local path or the vurl itself
-                storedFileName,
-                originalFileName,
-                contentType = contentType ?? file?.ContentType,
+                fileUrl,          // null if not uploaded
+                contentType,      // may be null
                 uploadedAt = uploadedAtUtc,
                 unitId,
-                vurl,                    // raw URL
-                debug = new
-                {
-                    hasFile,
-                    hasUrl,
-                    savedLocally = hasFile,
-                }
+                vurl,
+                storedFileName
             });
         }
+
 
 
 
