@@ -198,7 +198,7 @@ public class GroupController : ControllerBase
             cmd.Parameters.AddWithValue("@GroupName", group.GetProperty("groupName").GetString());
             cmd.Parameters.AddWithValue("@NumberOfSemesters", group.GetProperty("numberOfSemesters").GetInt32());
             cmd.Parameters.AddWithValue("@ProgrammeName", group.GetProperty("programmeName").GetString());
-            cmd.Parameters.AddWithValue("@BatchName", group.GetProperty("batchName").GetString());
+           // cmd.Parameters.AddWithValue("@BatchName", group.GetProperty("batchName").GetString());
             cmd.Parameters.AddWithValue("@Fee", group.GetProperty("fee").GetDecimal());
             cmd.Parameters.AddWithValue("@Installments", group.GetProperty("installments").GetInt32());
             cmd.Parameters.AddWithValue("@SelectedSemesters", string.Join(",", JsonSerializer.Deserialize<List<int>>(group.GetProperty("selectedSemesters").GetRawText())));
@@ -258,7 +258,7 @@ public class GroupController : ControllerBase
         cmd.Parameters.AddWithValue("@GroupName", updated.GetProperty("groupName").GetString());
         cmd.Parameters.AddWithValue("@NumberOfSemesters", updated.GetProperty("numberOfSemesters").GetInt32());
         cmd.Parameters.AddWithValue("@ProgrammeName", updated.GetProperty("programmeName").GetString());
-        cmd.Parameters.AddWithValue("@BatchName", updated.GetProperty("batchName").GetString());
+       // cmd.Parameters.AddWithValue("@BatchName", updated.GetProperty("batchName").GetString());
         cmd.Parameters.AddWithValue("@Fee", updated.GetProperty("fee").GetDecimal());
         cmd.Parameters.AddWithValue("@Installments", updated.GetProperty("installments").GetInt32());
         cmd.Parameters.AddWithValue("@SelectedSemesters", string.Join(",", JsonSerializer.Deserialize<List<int>>(updated.GetProperty("selectedSemesters").GetRawText())));
