@@ -56,7 +56,7 @@ namespace LMS.Controllers
                     NumberOfSemesters = (int)reader["NumberOfSemesters"],
                     Fee = (decimal)reader["Fee"],
                     Installments = (int)reader["Installments"],
-                    BatchName = reader["BatchName"].ToString(),
+                 //   BatchName = reader["BatchName"].ToString(),
                     IsCertCourse = reader["IsCertCourse"] != DBNull.Value && Convert.ToBoolean(reader["IsCertCourse"]),
                     IsNoGrp = reader["IsNoGrp"] != DBNull.Value && Convert.ToBoolean(reader["IsNoGrp"]),
                     CreatedDate = (DateTime)reader["CreatedDate"],
@@ -135,7 +135,7 @@ namespace LMS.Controllers
                     ProgrammeCode = reader["ProgrammeCode"].ToString(),
                     NumberOfSemesters = (int)reader["NumberOfSemesters"],
                     Fee = (decimal)reader["Fee"],
-                    BatchName = reader["BatchName"].ToString(),
+                 //   BatchName = reader["BatchName"].ToString(),
                     CreatedDate = (DateTime)reader["CreatedDate"],
                     UpdatedDate = (DateTime)reader["UpdatedDate"]
                 };
@@ -162,7 +162,7 @@ namespace LMS.Controllers
                     ProgrammeCode = reader["ProgrammeCode"].ToString(),
                     NumberOfSemesters = (int)reader["NumberOfSemesters"],
                     Fee = (decimal)reader["Fee"],
-                    BatchName = reader["BatchName"].ToString(),
+                   // BatchName = reader["BatchName"].ToString(),
                     IsCertCourse = reader["IsCertCourse"] != DBNull.Value && Convert.ToBoolean(reader["IsCertCourse"]),
                     CreatedDate = (DateTime)reader["CreatedDate"],
                     UpdatedDate = (DateTime)reader["UpdatedDate"]
@@ -249,7 +249,7 @@ namespace LMS.Controllers
                         cmd.Parameters.AddWithValue("@NumberOfSemesters", programme.NumberOfSemesters);
                         cmd.Parameters.AddWithValue("@Fee", programme.Fee);
                         cmd.Parameters.AddWithValue("@Installments", programme.Installments);
-                        cmd.Parameters.AddWithValue("@BatchName", programme.BatchName ?? string.Empty);
+                        //cmd.Parameters.AddWithValue("@BatchName", programme.BatchName ?? string.Empty);
 
                         //cmd.Parameters.AddWithValue("@IsCertCourse", programme.IsCertCourse);
                         //cmd.Parameters.AddWithValue("@IsNoGrp", programme.IsNoGrp);
@@ -280,7 +280,7 @@ namespace LMS.Controllers
                                     ProgrammeCode = reader["ProgrammeCode"].ToString(),
                                     NumberOfSemesters = reader.GetInt32(reader.GetOrdinal("NumberOfSemesters")),
                                     Fee = reader.GetDecimal(reader.GetOrdinal("Fee")),
-                                    BatchName = reader["BatchName"].ToString(),
+                                //    BatchName = reader["BatchName"].ToString(),
                                     IsCertCourse = reader.GetBoolean(reader.GetOrdinal("IsCertCourse")),
                                     IsNoGrp = reader.GetBoolean(reader.GetOrdinal("IsNoGrp")),
                                     CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
@@ -324,7 +324,7 @@ namespace LMS.Controllers
             cmd.Parameters.AddWithValue("@NumberOfSemesters", updated.NumberOfSemesters);
             cmd.Parameters.AddWithValue("@Fee", updated.Fee);
             cmd.Parameters.AddWithValue("@Installments", updated.Installments);
-            cmd.Parameters.AddWithValue("@BatchName", updated.BatchName);
+          //  cmd.Parameters.AddWithValue("@BatchName", updated.BatchName);
             // cmd.Parameters.AddWithValue("@IsCertCourse", updated.IsCertCourse);
             var isCertCourseParam = new SqlParameter("@IsCertCourse", SqlDbType.Bit)
             {
