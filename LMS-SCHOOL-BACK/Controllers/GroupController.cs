@@ -282,7 +282,7 @@ public class GroupController : ControllerBase
     }
 
     [HttpGet("GetCoursesByBatch")]
-    public async Task<IActionResult> GetCoursesByBatch(string Batch)
+    public async Task<IActionResult> GetCoursesByBatch()
     {
         var result = new List<object>();
         using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
