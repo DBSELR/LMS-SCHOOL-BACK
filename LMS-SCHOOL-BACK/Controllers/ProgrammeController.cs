@@ -373,6 +373,8 @@ namespace LMS.Controllers
 
                             cmd.Parameters.AddWithValue("@Bid", dto.Bid);
                             cmd.Parameters.AddWithValue("@BatchName", dto.BatchName);
+                            cmd.Parameters.AddWithValue("@Pid", dto.Pid);
+                            cmd.Parameters.AddWithValue("@Gid", dto.Gid);
                             cmd.Parameters.AddWithValue("@StartDate", dto.StartDate);
                             cmd.Parameters.AddWithValue("@EndDate", dto.EndDate);
 
@@ -433,10 +435,32 @@ namespace LMS.Controllers
             return NoContent();
         }
 
+        [HttpGet("GetGroupByProgrammes")]
+        public async Task<IActionResult> GetGroupByProgrammes(string pid)
+        {
+            var result = new List<object>();
+            using var conn = new SqlConnection(_connection);
+            using var cmd = new SqlCommand("sp_GetGroupByProgrammes", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+             cmd.Parameters.AddWithValue("@ProgrammeId", pid);
+
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+                result.Add(ReadRow(reader));
+
+            return Ok(result);
+        }
+
         public class BatchesDto
         {
             public int Bid { get; set; } = 0;
             public string BatchName { get; set; }
+            public int Pid { get; set; } 
+            public int Gid { get; set; } 
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
         }
