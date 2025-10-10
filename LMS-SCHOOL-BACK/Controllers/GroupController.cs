@@ -291,7 +291,7 @@ public class GroupController : ControllerBase
             CommandType = CommandType.StoredProcedure
         };
 
-        cmd.Parameters.AddWithValue("@Batch", Batch);
+       // cmd.Parameters.AddWithValue("@Batch", Batch);
 
         await conn.OpenAsync();
         using var reader = await cmd.ExecuteReaderAsync();
