@@ -423,6 +423,38 @@ namespace LMS.Controllers
             return Ok(result);
         }
 
+        [HttpGet("GetProgrammesByBatch")]
+        public async Task<IActionResult> GetProgrammesByBatch(int bid)
+        {
+            var result = new List<object>();
+            using var conn = new SqlConnection(_connection);
+            using var cmd = new SqlCommand("sp_Programme_GetProgrammesByBatch", conn)
+            { CommandType = CommandType.StoredProcedure };
+            cmd.Parameters.AddWithValue("@bid", bid);
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+                result.Add(ReadRow(reader));
+
+            return Ok(result);
+        }
+
+        //[HttpGet("GetGroupsByBatchandProgramme")]
+        //public async Task<IActionResult> GetGroupsByBatchandProgramme(string batch)
+        //{
+        //    var result = new List<object>();
+        //    using var conn = new SqlConnection(_connection);
+        //    using var cmd = new SqlCommand("sp_Programme_GetProgrammesByBatch", conn)
+        //    { CommandType = CommandType.StoredProcedure };
+        //    cmd.Parameters.AddWithValue("@Batch", batch);
+        //    await conn.OpenAsync();
+        //    using var reader = await cmd.ExecuteReaderAsync();
+        //    while (await reader.ReadAsync())
+        //        result.Add(ReadRow(reader));
+
+        //    return Ok(result);
+        //}
+
         [HttpDelete("DeleteBatchById")]
         public async Task<IActionResult> DeleteBatchById(int Bid)
         {
