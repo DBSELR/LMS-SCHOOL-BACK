@@ -143,7 +143,7 @@ namespace LMS.Controllers
             return Ok(result);
         }
 
-        [HttpPut("UpdateMenuorder/{id}/{displayOrder}")]
+        [HttpPut("UpdateMenuorder/{mmid}/{displayOrder}")]
         public async Task<IActionResult> UpdateMenuorder(int mmid, int displayOrder)
         {
             using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
