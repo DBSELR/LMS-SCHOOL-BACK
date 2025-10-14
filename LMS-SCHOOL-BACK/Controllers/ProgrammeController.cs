@@ -171,6 +171,99 @@ namespace LMS.Controllers
             return programme == null ? NotFound() : Ok(programme);
         }
 
+
+
+        [HttpPost]
+        public async Task<ActionResult<Programme>> CreateProgramme([FromBody] Programme programme)
+        {
+            if (programme == null)
+                return BadRequest("Programme data is missing.");
+
+            try
+            {
+                
+                string rawCombined = programme.ProgrammeCode ?? string.Empty;
+                string splitCode = programme.ProgrammeCode ?? string.Empty;
+                string splitName = programme.ProgrammeName ?? string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(rawCombined) && rawCombined.Contains("-"))
+                {
+                    
+                    var parts = rawCombined.Split(new[] { '-' }, 2, StringSplitOptions.None);
+                    if (parts.Length == 2)
+                    {
+                        splitCode = parts[0].Trim();         // e.g., "AP"
+                        splitName = parts[1].Trim();         // e.g., "ANDHRA PRADESH"
+                    }
+                }
+                else
+                {
+                    
+                    splitCode = (programme.ProgrammeCode ?? string.Empty).Trim();
+                    splitName = (programme.ProgrammeName ?? string.Empty).Trim();
+                }
+
+                Programme created = null;
+
+                using (var conn = new SqlConnection(_connection))
+                {
+                    await conn.OpenAsync();
+
+                    using (var cmd = new SqlCommand("sp_Programme_CreateProgramme", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        // Send parsed values to the stored procedure
+                        cmd.Parameters.AddWithValue("@ProgrammeName", splitName);
+                        cmd.Parameters.AddWithValue("@ProgrammeCode", splitCode);
+
+                        cmd.Parameters.AddWithValue("@NumberOfSemesters", programme.NumberOfSemesters);
+                        cmd.Parameters.AddWithValue("@Fee", programme.Fee);
+                        cmd.Parameters.AddWithValue("@Installments", programme.Installments);
+
+                        var isCertParam = new SqlParameter("@IsCertCourse", SqlDbType.Bit) { Value = programme.IsCertCourse };
+                        var isNoGrpParam = new SqlParameter("@isNoGrp", SqlDbType.Bit) { Value = programme.IsNoGrp };
+
+                        cmd.Parameters.Add(isCertParam);
+                        cmd.Parameters.Add(isNoGrpParam);
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                created = new Programme
+                                {
+                                    ProgrammeId = reader.GetInt32(reader.GetOrdinal("ProgrammeId")),
+                                    ProgrammeName = reader["ProgrammeName"]?.ToString(),
+                                    ProgrammeCode = reader["ProgrammeCode"]?.ToString(),
+                                    NumberOfSemesters = reader.GetInt32(reader.GetOrdinal("NumberOfSemesters")),
+                                    Fee = reader.GetDecimal(reader.GetOrdinal("Fee")),
+                                    IsCertCourse = reader.GetBoolean(reader.GetOrdinal("IsCertCourse")),
+                                    IsNoGrp = reader.GetBoolean(reader.GetOrdinal("IsNoGrp")),
+                                    CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                                    UpdatedDate = reader.GetDateTime(reader.GetOrdinal("UpdatedDate"))
+                                };
+                            }
+                        }
+                    }
+                }
+
+                if (created == null)
+                    return StatusCode(500, "Programme was not created.");
+
+                return Ok(created);
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, $"Database error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
+        }
+
+
         //[HttpPost]
         //public async Task<ActionResult<Programme>> CreateProgramme([FromBody] Programme programme)
         //{
@@ -226,89 +319,89 @@ namespace LMS.Controllers
         //    return CreatedAtAction(nameof(GetProgramme), new { id = created?.ProgrammeId }, created);
         //}
 
-        [HttpPost]
-        public async Task<ActionResult<Programme>> CreateProgramme([FromBody] Programme programme)
-        {
-            if (programme == null)
-                return BadRequest("Programme data is missing.");
+        //[HttpPost]
+        //public async Task<ActionResult<Programme>> CreateProgramme([FromBody] Programme programme)
+        //{
+        //    if (programme == null)
+        //        return BadRequest("Programme data is missing.");
 
-            try
-            {
-                Programme created = null;
+        //    try
+        //    {
+        //        Programme created = null;
 
-                using (var conn = new SqlConnection(_connection))
-                {
-                    await conn.OpenAsync();
+        //        using (var conn = new SqlConnection(_connection))
+        //        {
+        //            await conn.OpenAsync();
 
-                    using (var cmd = new SqlCommand("sp_Programme_CreateProgramme", conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
+        //            using (var cmd = new SqlCommand("sp_Programme_CreateProgramme", conn))
+        //            {
+        //                cmd.CommandType = CommandType.StoredProcedure;
 
-                        cmd.Parameters.AddWithValue("@ProgrammeName", programme.ProgrammeName ?? string.Empty);
-                        cmd.Parameters.AddWithValue("@ProgrammeCode", programme.ProgrammeCode ?? string.Empty);
-                        cmd.Parameters.AddWithValue("@NumberOfSemesters", programme.NumberOfSemesters);
-                        cmd.Parameters.AddWithValue("@Fee", programme.Fee);
-                        cmd.Parameters.AddWithValue("@Installments", programme.Installments);
-                        //cmd.Parameters.AddWithValue("@BatchName", programme.BatchName ?? string.Empty);
+        //                cmd.Parameters.AddWithValue("@ProgrammeName", programme.ProgrammeName ?? string.Empty);
+        //                cmd.Parameters.AddWithValue("@ProgrammeCode", programme.ProgrammeCode ?? string.Empty);
+        //                cmd.Parameters.AddWithValue("@NumberOfSemesters", programme.NumberOfSemesters);
+        //                cmd.Parameters.AddWithValue("@Fee", programme.Fee);
+        //                cmd.Parameters.AddWithValue("@Installments", programme.Installments);
+        //                //cmd.Parameters.AddWithValue("@BatchName", programme.BatchName ?? string.Empty);
 
-                        //cmd.Parameters.AddWithValue("@IsCertCourse", programme.IsCertCourse);
-                        //cmd.Parameters.AddWithValue("@IsNoGrp", programme.IsNoGrp);
+        //                //cmd.Parameters.AddWithValue("@IsCertCourse", programme.IsCertCourse);
+        //                //cmd.Parameters.AddWithValue("@IsNoGrp", programme.IsNoGrp);
 
-                        var isCertParam = new SqlParameter("@IsCertCourse", SqlDbType.Bit)
-                        {
-                            Value = programme.IsCertCourse
-                    };
-                    var IsNoGrp = new SqlParameter("@isNoGrp", SqlDbType.Bit)
-                    {
-                        Value = programme.IsNoGrp
-                    };
+        //                var isCertParam = new SqlParameter("@IsCertCourse", SqlDbType.Bit)
+        //                {
+        //                    Value = programme.IsCertCourse
+        //            };
+        //            var IsNoGrp = new SqlParameter("@isNoGrp", SqlDbType.Bit)
+        //            {
+        //                Value = programme.IsNoGrp
+        //            };
 
-                    cmd.Parameters.Add(isCertParam);
-                    cmd.Parameters.Add(IsNoGrp);
-
-
+        //            cmd.Parameters.Add(isCertParam);
+        //            cmd.Parameters.Add(IsNoGrp);
 
 
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            if (await reader.ReadAsync())
-                            {
-                                created = new Programme
-                                {
-                                    ProgrammeId = reader.GetInt32(reader.GetOrdinal("ProgrammeId")),
-                                    ProgrammeName = reader["ProgrammeName"].ToString(),
-                                    ProgrammeCode = reader["ProgrammeCode"].ToString(),
-                                    NumberOfSemesters = reader.GetInt32(reader.GetOrdinal("NumberOfSemesters")),
-                                    Fee = reader.GetDecimal(reader.GetOrdinal("Fee")),
-                                //    BatchName = reader["BatchName"].ToString(),
-                                    IsCertCourse = reader.GetBoolean(reader.GetOrdinal("IsCertCourse")),
-                                    IsNoGrp = reader.GetBoolean(reader.GetOrdinal("IsNoGrp")),
-                                    CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
-                                    UpdatedDate = reader.GetDateTime(reader.GetOrdinal("UpdatedDate"))
-                                };
-                            }
-                        }
-                    }
-                }
 
-                if (created == null)
-                    return StatusCode(500, "Programme was not created.");
 
-                //return CreatedAtAction(nameof(GetProgramme), new { id = created.ProgrammeId }, created);
-                return Ok(created); // instead of CreatedAtAction(...)
+        //                using (var reader = await cmd.ExecuteReaderAsync())
+        //                {
+        //                    if (await reader.ReadAsync())
+        //                    {
+        //                        created = new Programme
+        //                        {
+        //                            ProgrammeId = reader.GetInt32(reader.GetOrdinal("ProgrammeId")),
+        //                            ProgrammeName = reader["ProgrammeName"].ToString(),
+        //                            ProgrammeCode = reader["ProgrammeCode"].ToString(),
+        //                            NumberOfSemesters = reader.GetInt32(reader.GetOrdinal("NumberOfSemesters")),
+        //                            Fee = reader.GetDecimal(reader.GetOrdinal("Fee")),
+        //                        //    BatchName = reader["BatchName"].ToString(),
+        //                            IsCertCourse = reader.GetBoolean(reader.GetOrdinal("IsCertCourse")),
+        //                            IsNoGrp = reader.GetBoolean(reader.GetOrdinal("IsNoGrp")),
+        //                            CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+        //                            UpdatedDate = reader.GetDateTime(reader.GetOrdinal("UpdatedDate"))
+        //                        };
+        //                    }
+        //                }
+        //            }
+        //        }
 
-            }
-            catch (SqlException ex)
-            {
-                // Log error if needed
-                return StatusCode(500, $"Database error: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Log error if needed
-                return StatusCode(500, $"Unexpected error: {ex.Message}");
-            }
-        }
+        //        if (created == null)
+        //            return StatusCode(500, "Programme was not created.");
+
+        //        //return CreatedAtAction(nameof(GetProgramme), new { id = created.ProgrammeId }, created);
+        //        return Ok(created); // instead of CreatedAtAction(...)
+
+        //    }
+        //    catch (SqlException ex)
+        //    {
+        //        // Log error if needed
+        //        return StatusCode(500, $"Database error: {ex.Message}");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log error if needed
+        //        return StatusCode(500, $"Unexpected error: {ex.Message}");
+        //    }
+        //}
 
 
 
