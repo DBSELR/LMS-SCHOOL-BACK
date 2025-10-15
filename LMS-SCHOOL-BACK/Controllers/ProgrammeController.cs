@@ -56,11 +56,40 @@ namespace LMS.Controllers
                     NumberOfSemesters = (int)reader["NumberOfSemesters"],
                     Fee = (decimal)reader["Fee"],
                     Installments = (int)reader["Installments"],
-                 //   BatchName = reader["BatchName"].ToString(),
+                   // BatchName = reader["BatchName"].ToString(),
                     IsCertCourse = reader["IsCertCourse"] != DBNull.Value && Convert.ToBoolean(reader["IsCertCourse"]),
                     IsNoGrp = reader["IsNoGrp"] != DBNull.Value && Convert.ToBoolean(reader["IsNoGrp"]),
                     CreatedDate = (DateTime)reader["CreatedDate"],
                     UpdatedDate = (DateTime)reader["UpdatedDate"]
+                });
+            }
+            return Ok(result);
+        }
+
+        [HttpGet("ProgrammeBatch")]
+        public async Task<ActionResult<IEnumerable<Programme>>> GetAllProgrammeBatch()
+        {
+            var result = new List<Programme>();
+            using var conn = new SqlConnection(_connection);
+            using var cmd = new SqlCommand("sp_Programme_GetBatch", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                result.Add(new Programme
+                {
+                    ProgrammeId = (int)reader["ProgrammeId"],
+                    ProgrammeName = reader["ProgrammeName"].ToString(),
+                    ProgrammeCode = reader["ProgrammeCode"].ToString(),
+                    //NumberOfSemesters = (int)reader["NumberOfSemesters"],
+                   // Fee = (decimal)reader["Fee"],
+                  //  Installments = (int)reader["Installments"],
+                    BatchName = reader["BatchName"].ToString()
+                    //IsCertCourse = reader["IsCertCourse"] != DBNull.Value && Convert.ToBoolean(reader["IsCertCourse"]),
+                    //IsNoGrp = reader["IsNoGrp"] != DBNull.Value && Convert.ToBoolean(reader["IsNoGrp"]),
+                    //CreatedDate = (DateTime)reader["CreatedDate"],
+                    //UpdatedDate = (DateTime)reader["UpdatedDate"]
                 });
             }
             return Ok(result);

@@ -17,9 +17,9 @@ namespace LMS.Models
        
         public string ProgrammeName { get; set; }
 
-        //[Required]
-        //[StringLength(20)]
-        //public string BatchName { get; set; }
+      
+        [StringLength(20)]
+        public string BatchName { get; set; }
 
         [Required]
         [Range(1, 20)]

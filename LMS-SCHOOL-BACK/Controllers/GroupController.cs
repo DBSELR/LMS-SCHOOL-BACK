@@ -170,6 +170,21 @@ public class GroupController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("GroupBatch")]
+    public async Task<IActionResult> GetAllGroupBatch()
+    {
+        var result = new List<object>();
+        using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+        using var cmd = new SqlCommand("sp_Group_GetBatch", conn) { CommandType = CommandType.StoredProcedure };
+
+        await conn.OpenAsync();
+        using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+            result.Add(ReadRow(reader));
+
+        return Ok(result);
+    }
+
     [HttpGet("ByProgramme/{programmeId}")]
     public async Task<IActionResult> GetGroupsByProgramme(int programmeId)
     {
