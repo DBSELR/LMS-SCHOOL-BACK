@@ -501,6 +501,7 @@ namespace LMS.Controllers
                             cmd.Parameters.AddWithValue("@Gid", dto.Gid);
                             cmd.Parameters.AddWithValue("@StartDate", dto.StartDate);
                             cmd.Parameters.AddWithValue("@EndDate", dto.EndDate);
+                            cmd.Parameters.AddWithValue("@Fee", dto.Fee);
 
                             await cmd.ExecuteNonQueryAsync();
                         }
@@ -619,6 +620,7 @@ namespace LMS.Controllers
             public int Gid { get; set; } 
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
+            public decimal Fee { get; set; }
         }
     }
 }
