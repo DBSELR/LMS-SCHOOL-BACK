@@ -19,7 +19,7 @@ namespace LMS.Models
 
       
         [StringLength(20)]
-        public string BatchName { get; set; }
+        public string? BatchName { get; set; }
 
         [Required]
         [Range(1, 20)]
