@@ -210,7 +210,7 @@ namespace LMS.Controllers
                 cmd.Parameters.AddWithValue("@ClassName", liveClass.GetProperty("className").GetString());
                 cmd.Parameters.AddWithValue("@InstructorId", liveClass.GetProperty("instructorId").GetInt32());
                 cmd.Parameters.AddWithValue("@ExaminationID", liveClass.GetProperty("examinationID").GetInt32());
-                cmd.Parameters.AddWithValue("@Semester", liveClass.GetProperty("semester").GetInt32());
+               // cmd.Parameters.AddWithValue("@Semester", liveClass.GetProperty("semester").GetInt32());
                 cmd.Parameters.AddWithValue("@BatchName", liveClass.GetProperty("batchName").GetString());
                 cmd.Parameters.AddWithValue("@LiveDate", date.Date);
                 cmd.Parameters.AddWithValue("@StartTime", fullStart); // Full DateTime

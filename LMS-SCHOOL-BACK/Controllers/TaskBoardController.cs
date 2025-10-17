@@ -119,7 +119,7 @@ namespace LMS.Controllers
             _connectionString = _configuration.GetConnectionString("DefaultConnection");
         }
 
-        [HttpGet]
+        [HttpGet("GetTasks")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetTasks()
         {
@@ -132,7 +132,7 @@ namespace LMS.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
+        [HttpPost("CreateTask")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult CreateTask([FromBody] TaskItem task)
