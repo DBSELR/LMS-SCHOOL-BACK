@@ -127,6 +127,7 @@ namespace LMS.Controllers
             using var conn = new SqlConnection(_connectionString);
             using var cmd = new SqlCommand("sp_TaskBoard_GetTasks", conn);
             cmd.Parameters.AddWithValue("@UserId", UserId);
+
             cmd.CommandType = CommandType.StoredProcedure;
             new SqlDataAdapter(cmd).Fill(dt);
             var result = DataTableConverter.ToDictionaryList(dt);
