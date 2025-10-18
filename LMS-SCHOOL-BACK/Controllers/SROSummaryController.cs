@@ -10,6 +10,7 @@ namespace LMS.Controllers
     [ApiController]
     public class SROSummaryController : Controller
     {
+
         private readonly IConfiguration _configuration;
 
         public SROSummaryController(IConfiguration configuration)
@@ -30,7 +31,7 @@ namespace LMS.Controllers
             return row;
         }
 
-        [HttpGet("dashboard/{instructorId}")]
+        [HttpGet("dashboard/{UserId}")]
         public async Task<IActionResult> GetDashboardSummary(int UserId)
         {
             using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
