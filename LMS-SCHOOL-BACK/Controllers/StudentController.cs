@@ -193,6 +193,120 @@ namespace LMS.Controllers
             return Ok(list);
         }
 
+        //[HttpPost("register")]
+        //public async Task<IActionResult> Register([FromBody] StudentRegisterDto request)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+
+        //    try
+        //    {
+        //        using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+
+        //        // Step 1: Call SP to create user and get username
+        //        using var cmd = new SqlCommand("sp_Student_Register", conn) { CommandType = CommandType.StoredProcedure };
+
+        //        var usernameParam = new SqlParameter("@Username", SqlDbType.VarChar, 7)
+        //        {
+        //            Direction = ParameterDirection.Output
+        //        };
+
+        //        cmd.Parameters.AddWithValue("@Email", request.Email);
+        //        cmd.Parameters.AddWithValue("@PasswordHash", "TEMP");
+        //        cmd.Parameters.AddWithValue("@FirstName", request.FirstName);
+        //        cmd.Parameters.AddWithValue("@LastName", request.LastName);
+        //        cmd.Parameters.AddWithValue("@PhoneNumber", request.PhoneNumber);
+        //        cmd.Parameters.AddWithValue("@Gender", request.Gender);
+        //        cmd.Parameters.AddWithValue("@DateOfBirth", request.DateOfBirth);
+        //        cmd.Parameters.AddWithValue("@ProfilePhotoUrl", request.ProfilePhotoUrl);
+        //        cmd.Parameters.AddWithValue("@Address", request.Address);
+        //        cmd.Parameters.AddWithValue("@City", request.City);
+        //        cmd.Parameters.AddWithValue("@State", request.State);
+        //        cmd.Parameters.AddWithValue("@Country", request.Country);
+        //        cmd.Parameters.AddWithValue("@ZipCode", request.ZipCode);
+        //        cmd.Parameters.AddWithValue("@BatchName", request.Batch);
+        //        cmd.Parameters.AddWithValue("@ProgrammeId", request.programmeId);
+        //        cmd.Parameters.AddWithValue("@GroupId", request.groupId);
+        //        cmd.Parameters.AddWithValue("@Jsem", request.semester);
+        //        cmd.Parameters.AddWithValue("@ssem", request.semester);
+        //        cmd.Parameters.Add(usernameParam);
+
+        //        await conn.OpenAsync();
+        //        await cmd.ExecuteNonQueryAsync();
+
+        //        var generatedUsername = usernameParam.Value?.ToString();
+        //        if (string.IsNullOrEmpty(generatedUsername))
+        //            return StatusCode(500, "Username generation failed.");
+
+        //        // Step 2: Use username as password
+        //        var rawPassword = generatedUsername;
+        //        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
+
+        //        // Step 3: Update password
+        //        using var updateCmd = new SqlCommand("UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn);
+        //        updateCmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+        //        updateCmd.Parameters.AddWithValue("@Username", generatedUsername);
+        //        await updateCmd.ExecuteNonQueryAsync();
+
+        //        // Step 4: Get newly created UserId
+        //        using var userIdCmd = new SqlCommand("SELECT UserId FROM Users WHERE Username = @Username", conn);
+        //        userIdCmd.Parameters.AddWithValue("@Username", generatedUsername);
+        //        var userIdObj = await userIdCmd.ExecuteScalarAsync();
+        //        if (userIdObj == null)
+        //            return StatusCode(500, "Failed to retrieve UserId.");
+        //        int userId = Convert.ToInt32(userIdObj);
+
+        //        //// Step 5: Auto-assign courses based on Programme and Semester
+        //        //using var courseCmd = new SqlCommand("SELECT distinct s1.examinationid courseid, s1.semester sem FROM SubjectBank s1 inner join SubjectAssignments s2 on " +
+        //        //    " s1.examinationid = s2.examinationid and s1.BatchName = s2.BatchName and s1.semester = s2.semester  " +
+        //        //    " WHERE s2.CourseId = @ProgrammeId and s2.GroupId = @GroupId and s2.BatchName=@BatchName and s2.semester=@ssem", conn);
+
+        //        //courseCmd.Parameters.AddWithValue("@ProgrammeId", request.programmeId);
+        //        //courseCmd.Parameters.AddWithValue("@GroupId", request.groupId);
+        //        //courseCmd.Parameters.AddWithValue("@BatchName", request.Batch);
+        //        //courseCmd.Parameters.AddWithValue("@ssem", request.semester);
+        //        //using var reader = await courseCmd.ExecuteReaderAsync();
+
+        //        //int semesterValue = request.semester;
+        //        //var matchedCourseIds = new List<int>();
+
+        //        //while (await reader.ReadAsync())
+        //        //{
+        //        //    if (int.TryParse(reader["sem"]?.ToString(), out int courseSemester) &&
+        //        //        courseSemester == semesterValue &&
+        //        //        int.TryParse(reader["courseid"]?.ToString(), out int cid))
+        //        //    {
+        //        //        matchedCourseIds.Add(cid);
+        //        //    }
+        //        //}
+        //        //reader.Close();
+
+        //        //foreach (var courseId in matchedCourseIds)
+        //        //{
+        //        //    using var assignCmd = new SqlCommand(@"INSERT INTO StudentCourses (UserId, CourseId, CompletionStatus, Grade, DateAssigned)
+        //        //                                   VALUES (@UserId, @CourseId, 'NotStarted', 'N/A', @Now)", conn);
+        //        //    assignCmd.Parameters.AddWithValue("@UserId", userId);
+        //        //    assignCmd.Parameters.AddWithValue("@CourseId", courseId);
+        //        //    assignCmd.Parameters.AddWithValue("@Now", DateTime.UtcNow);
+        //        //    await assignCmd.ExecuteNonQueryAsync();
+        //        //}
+
+        //        //// Step 6: Generate semester fee
+        //        //await _feeService.GenerateSemesterFeeForCurrentSemester(userId, request.Batch, request.programmeId, request.groupId, request.semester);
+
+        //        return Ok(new
+        //        {
+        //            Username = generatedUsername,
+        //            Password = rawPassword,
+        //            Message = "Student registered successfully"
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
+        //}
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] StudentRegisterDto request)
         {
@@ -201,30 +315,24 @@ namespace LMS.Controllers
 
             try
             {
-                using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await using var cmd = new SqlCommand("sp_Student_Register", conn) { CommandType = CommandType.StoredProcedure };
 
-                // Step 1: Call SP to create user and get username
-                using var cmd = new SqlCommand("sp_Student_Register", conn) { CommandType = CommandType.StoredProcedure };
-
-                var usernameParam = new SqlParameter("@Username", SqlDbType.VarChar, 7)
-                {
-                    Direction = ParameterDirection.Output
-                };
-
-                cmd.Parameters.AddWithValue("@Email", request.Email);
+                var usernameParam = new SqlParameter("@Username", SqlDbType.NVarChar, 7) { Direction = ParameterDirection.Output };
+                cmd.Parameters.AddWithValue("@Email", request.Email ?? string.Empty);
                 cmd.Parameters.AddWithValue("@PasswordHash", "TEMP");
-                cmd.Parameters.AddWithValue("@FirstName", request.FirstName);
-                cmd.Parameters.AddWithValue("@LastName", request.LastName);
-                cmd.Parameters.AddWithValue("@PhoneNumber", request.PhoneNumber);
-                cmd.Parameters.AddWithValue("@Gender", request.Gender);
-                cmd.Parameters.AddWithValue("@DateOfBirth", request.DateOfBirth);
-                cmd.Parameters.AddWithValue("@ProfilePhotoUrl", request.ProfilePhotoUrl);
-                cmd.Parameters.AddWithValue("@Address", request.Address);
-                cmd.Parameters.AddWithValue("@City", request.City);
-                cmd.Parameters.AddWithValue("@State", request.State);
-                cmd.Parameters.AddWithValue("@Country", request.Country);
-                cmd.Parameters.AddWithValue("@ZipCode", request.ZipCode);
-                cmd.Parameters.AddWithValue("@BatchName", request.Batch);
+                cmd.Parameters.AddWithValue("@FirstName", request.FirstName ?? string.Empty);
+                cmd.Parameters.AddWithValue("@LastName", request.LastName ?? string.Empty);
+                cmd.Parameters.AddWithValue("@PhoneNumber", request.PhoneNumber ?? string.Empty);
+                cmd.Parameters.AddWithValue("@Gender", request.Gender ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@DateOfBirth", (object?)request.DateOfBirth ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@ProfilePhotoUrl", request.ProfilePhotoUrl ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Address", request.Address ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@City", request.City ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@State", request.State ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Country", request.Country ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@ZipCode", request.ZipCode ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@BatchName", request.Batch ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@ProgrammeId", request.programmeId);
                 cmd.Parameters.AddWithValue("@GroupId", request.groupId);
                 cmd.Parameters.AddWithValue("@Jsem", request.semester);
@@ -232,80 +340,100 @@ namespace LMS.Controllers
                 cmd.Parameters.Add(usernameParam);
 
                 await conn.OpenAsync();
-                await cmd.ExecuteNonQueryAsync();
 
-                var generatedUsername = usernameParam.Value?.ToString();
-                if (string.IsNullOrEmpty(generatedUsername))
+                // Read resultset to detect conflicts/success
+                using var reader = await cmd.ExecuteReaderAsync();
+                var conflicts = new List<object>();
+                bool gotAnyRows = false;
+                bool success = false;
+                string? generatedUsernameFromRow = null;
+
+                while (await reader.ReadAsync())
+                {
+                    gotAnyRows = true;
+                    success = reader.GetBoolean(reader.GetOrdinal("Success"));
+
+                    if (!success)
+                    {
+                        var typeOrdinal = reader.GetOrdinal("ConflictType");
+                        var detailsOrdinal = reader.GetOrdinal("Details");
+                        var conflictType = reader.IsDBNull(typeOrdinal) ? null : reader.GetString(typeOrdinal);
+                        var details = reader.IsDBNull(detailsOrdinal) ? null : reader.GetString(detailsOrdinal);
+
+                        if (!string.IsNullOrEmpty(conflictType))
+                            conflicts.Add(new { ConflictType = conflictType, Details = details });
+                    }
+                    else
+                    {
+                        var detailsOrdinal = reader.GetOrdinal("Details");
+                        generatedUsernameFromRow = reader.IsDBNull(detailsOrdinal) ? null : reader.GetString(detailsOrdinal);
+                    }
+                }
+
+              
+                if (gotAnyRows && !success)
+                {
+                    return Conflict(new
+                    {
+                        error = "Duplicate fields found",
+                        conflicts
+                        // e.g. [
+                        //   { ConflictType: "EMAIL_EXISTS", Details: "Ram@dbs.com" },
+                        //   { ConflictType: "PHONE_EXISTS", Details: "903010..." },
+                        //   { ConflictType: "NAME_PAIR_EXISTS", Details: "Ram DBS" }
+                        // ]
+                    });
+                }
+
+             
+                if (string.IsNullOrEmpty(generatedUsernameFromRow))
+                    generatedUsernameFromRow = usernameParam.Value?.ToString();
+
+                if (string.IsNullOrEmpty(generatedUsernameFromRow))
                     return StatusCode(500, "Username generation failed.");
 
-                // Step 2: Use username as password
-                var rawPassword = generatedUsername;
+                // Success: first-time password = username (hash and store)
+                var rawPassword = generatedUsernameFromRow;
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
 
-                // Step 3: Update password
-                using var updateCmd = new SqlCommand("UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn);
-                updateCmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
-                updateCmd.Parameters.AddWithValue("@Username", generatedUsername);
-                await updateCmd.ExecuteNonQueryAsync();
+                using (var updateCmd = new SqlCommand("UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn))
+                {
+                    updateCmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+                    updateCmd.Parameters.AddWithValue("@Username", generatedUsernameFromRow);
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
 
-                // Step 4: Get newly created UserId
-                using var userIdCmd = new SqlCommand("SELECT UserId FROM Users WHERE Username = @Username", conn);
-                userIdCmd.Parameters.AddWithValue("@Username", generatedUsername);
-                var userIdObj = await userIdCmd.ExecuteScalarAsync();
-                if (userIdObj == null)
-                    return StatusCode(500, "Failed to retrieve UserId.");
-                int userId = Convert.ToInt32(userIdObj);
-
-                //// Step 5: Auto-assign courses based on Programme and Semester
-                //using var courseCmd = new SqlCommand("SELECT distinct s1.examinationid courseid, s1.semester sem FROM SubjectBank s1 inner join SubjectAssignments s2 on " +
-                //    " s1.examinationid = s2.examinationid and s1.BatchName = s2.BatchName and s1.semester = s2.semester  " +
-                //    " WHERE s2.CourseId = @ProgrammeId and s2.GroupId = @GroupId and s2.BatchName=@BatchName and s2.semester=@ssem", conn);
-                
-                //courseCmd.Parameters.AddWithValue("@ProgrammeId", request.programmeId);
-                //courseCmd.Parameters.AddWithValue("@GroupId", request.groupId);
-                //courseCmd.Parameters.AddWithValue("@BatchName", request.Batch);
-                //courseCmd.Parameters.AddWithValue("@ssem", request.semester);
-                //using var reader = await courseCmd.ExecuteReaderAsync();
-
-                //int semesterValue = request.semester;
-                //var matchedCourseIds = new List<int>();
-
-                //while (await reader.ReadAsync())
-                //{
-                //    if (int.TryParse(reader["sem"]?.ToString(), out int courseSemester) &&
-                //        courseSemester == semesterValue &&
-                //        int.TryParse(reader["courseid"]?.ToString(), out int cid))
-                //    {
-                //        matchedCourseIds.Add(cid);
-                //    }
-                //}
-                //reader.Close();
-
-                //foreach (var courseId in matchedCourseIds)
-                //{
-                //    using var assignCmd = new SqlCommand(@"INSERT INTO StudentCourses (UserId, CourseId, CompletionStatus, Grade, DateAssigned)
-                //                                   VALUES (@UserId, @CourseId, 'NotStarted', 'N/A', @Now)", conn);
-                //    assignCmd.Parameters.AddWithValue("@UserId", userId);
-                //    assignCmd.Parameters.AddWithValue("@CourseId", courseId);
-                //    assignCmd.Parameters.AddWithValue("@Now", DateTime.UtcNow);
-                //    await assignCmd.ExecuteNonQueryAsync();
-                //}
-
-                //// Step 6: Generate semester fee
-                //await _feeService.GenerateSemesterFeeForCurrentSemester(userId, request.Batch, request.programmeId, request.groupId, request.semester);
+               
+                // using var userIdCmd = new SqlCommand("SELECT UserId FROM Users WHERE Username = @Username", conn);
+                // userIdCmd.Parameters.AddWithValue("@Username", generatedUsernameFromRow);
+                // var userIdObj = await userIdCmd.ExecuteScalarAsync();
 
                 return Ok(new
                 {
-                    Username = generatedUsername,
+                    Username = generatedUsernameFromRow,
                     Password = rawPassword,
                     Message = "Student registered successfully"
                 });
             }
+            catch (SqlException ex)
+            {
+                // If you add DB unique indexes, handle those too
+                if (ex.Number == 2627 || ex.Number == 2601)
+                {
+                    return Conflict(new
+                    {
+                        error = "Duplicate detected by database index.",
+                        sqlError = ex.Message
+                    });
+                }
+                return StatusCode(500, new { error = $"SQL error {ex.Number}: {ex.Message}" });
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { error = $"Unexpected error: {ex.Message}" });
             }
         }
+
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteStudent(int id)
