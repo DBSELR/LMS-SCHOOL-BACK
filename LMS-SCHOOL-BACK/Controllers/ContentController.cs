@@ -299,45 +299,145 @@ namespace LMS.Controllers
 
         //return Ok(new { pdfCount = 0, videoCount = 0, ebookCount = 0 });
 
+        //    [HttpDelete("Delete/{id}")]
+        //    public async Task<IActionResult> Delete(int id)
+        //    {
+        //        string fileUrl = null;
+
+        //        using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+        //        {
+        //            var getCmd = new SqlCommand("sp_CourseContent_GetById", conn)
+        //            {
+        //                CommandType = CommandType.StoredProcedure
+        //            };
+        //            getCmd.Parameters.AddWithValue("@Id", id);
+        //            await conn.OpenAsync();
+        //            using var reader = await getCmd.ExecuteReaderAsync();
+        //            if (await reader.ReadAsync())
+        //                fileUrl = reader["FileUrl"].ToString();
+        //            else
+        //                return NotFound();
+        //        }
+
+        //        if (!string.IsNullOrWhiteSpace(fileUrl))
+        //        {
+        //            var fullPath = Path.Combine(_env.WebRootPath, fileUrl.TrimStart('/'));
+        //            if (System.IO.File.Exists(fullPath))
+        //                System.IO.File.Delete(fullPath);
+        //        }
+
+        //        using var conn2 = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+        //        using var cmd = new SqlCommand("sp_CourseContent_Delete", conn2)
+        //        {
+        //            CommandType = CommandType.StoredProcedure
+        //        };
+        //        cmd.Parameters.AddWithValue("@Id", id);
+        //        await conn2.OpenAsync();
+        //        await cmd.ExecuteNonQueryAsync();
+
+        //        return NoContent();
+        //    }
+
+
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            string fileUrl = null;
+            // 1) Look up row to get FileUrl (if any)
+            string? fileUrl = null;
 
-            using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            await using (var cmd = new SqlCommand("sp_CourseContent_GetById", conn) { CommandType = CommandType.StoredProcedure })
             {
-                var getCmd = new SqlCommand("sp_CourseContent_GetById", conn)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-                getCmd.Parameters.AddWithValue("@Id", id);
+                cmd.Parameters.AddWithValue("@Id", id);
                 await conn.OpenAsync();
-                using var reader = await getCmd.ExecuteReaderAsync();
+
+                await using var reader = await cmd.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
-                    fileUrl = reader["FileUrl"].ToString();
+                {
+                    fileUrl = reader["FileUrl"] as string;
+                }
                 else
-                    return NotFound();
+                {
+                    return NotFound(); // no such row
+                }
             }
 
-            if (!string.IsNullOrWhiteSpace(fileUrl))
+            // 2) Delete DB row first (source of truth). We don’t want to keep a DB row if file deletion throws.
+            await using (var conn2 = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            await using (var delCmd = new SqlCommand("sp_CourseContent_Delete", conn2) { CommandType = CommandType.StoredProcedure })
             {
-                var fullPath = Path.Combine(_env.WebRootPath, fileUrl.TrimStart('/'));
-                if (System.IO.File.Exists(fullPath))
-                    System.IO.File.Delete(fullPath);
+                delCmd.Parameters.AddWithValue("@Id", id);
+                await conn2.OpenAsync();
+                await delCmd.ExecuteNonQueryAsync();
             }
 
-            using var conn2 = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-            using var cmd = new SqlCommand("sp_CourseContent_Delete", conn2)
+            // 3) Attempt filesystem deletion if FileUrl is a LOCAL path (not an external URL like Vimeo)
+            //    - Safe against null WebRootPath
+            //    - Safe against path traversal
+            //    - Doesn’t throw back to client; just tries and moves on.
+            if (!string.IsNullOrWhiteSpace(fileUrl) && IsLikelyLocalPath(fileUrl))
             {
-                CommandType = CommandType.StoredProcedure
-            };
-            cmd.Parameters.AddWithValue("@Id", id);
-            await conn2.OpenAsync();
-            await cmd.ExecuteNonQueryAsync();
+                try
+                {
+                    var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                    // Normalize: trim leading '/', convert to OS separators
+                    var relative = fileUrl!.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+
+                    // We only allow deletion inside /uploads/course-content
+                    var uploadsRoot = Path.Combine(webRoot, "uploads", "course-content");
+                    Directory.CreateDirectory(uploadsRoot); // ensure path exists for GetFullPath comparison
+
+                    var fullPath = Path.GetFullPath(Path.Combine(webRoot, relative));
+                    var uploadsRootFull = Path.GetFullPath(uploadsRoot);
+
+                    // Path traversal guard: fullPath must lie under uploadsRoot
+                    if (fullPath.StartsWith(uploadsRootFull, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            // Exclusive delete (optional: wrap in using for FileShare checks)
+                            System.IO.File.Delete(fullPath);
+                        }
+                    }
+                    // else: ignore silently; someone tampered with FileUrl or it’s outside allowed folder
+                }
+                catch (IOException)
+                {
+                    // TODO: log warning (don’t fail API): file may be locked or already deleted
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // TODO: log warning: permissions issue
+                }
+                // Catch nothing else; let truly unexpected errors bubble in logs, not to the client.
+            }
 
             return NoContent();
         }
+
+      
+
+        private static bool IsLikelyLocalPath(string urlOrPath)
+        {
+            // returns true if it looks like a site-relative path like "/uploads/course-content/abc.pdf"
+            // and not an absolute URL (http/https)
+            if (string.IsNullOrWhiteSpace(urlOrPath)) return false;
+
+            // reject absolute URLs
+            if (Uri.TryCreate(urlOrPath, UriKind.Absolute, out var absUri) &&
+                (absUri.Scheme == Uri.UriSchemeHttp || absUri.Scheme == Uri.UriSchemeHttps))
+            {
+                return false;
+            }
+
+            // accept absolute-path style or relative-path style
+            return urlOrPath.StartsWith("/") || urlOrPath.IndexOfAny(new[] { '\\', '/' }) >= 0;
+        }
+
+
+
+
     }
 
-  
+
 }
