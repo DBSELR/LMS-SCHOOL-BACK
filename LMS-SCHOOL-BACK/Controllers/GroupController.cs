@@ -124,6 +124,7 @@
 //        return NoContent();
 //    }
 //}
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -172,6 +173,22 @@ public class GroupController : ControllerBase
 
     [HttpGet("GroupBatch")]
     public async Task<IActionResult> GetAllGroupBatch()
+    {
+        var result = new List<object>();
+        using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+        using var cmd = new SqlCommand("sp_Group_GetBatch", conn) { CommandType = CommandType.StoredProcedure };
+
+        await conn.OpenAsync();
+        using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+            result.Add(ReadRow(reader));
+
+        return Ok(result);
+    }
+
+    [HttpGet("LandingGroupBatch")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LandingGetAllGroupBatch()
     {
         var result = new List<object>();
         using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));

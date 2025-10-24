@@ -7,6 +7,7 @@ using LMS.Models;
 using System.Data;
 using Microsoft.Extensions.Configuration;
 using static ExaminationController;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LMS.Controllers
 {
@@ -90,6 +91,29 @@ namespace LMS.Controllers
                     //IsNoGrp = reader["IsNoGrp"] != DBNull.Value && Convert.ToBoolean(reader["IsNoGrp"]),
                     //CreatedDate = (DateTime)reader["CreatedDate"],
                     //UpdatedDate = (DateTime)reader["UpdatedDate"]
+                });
+            }
+            return Ok(result);
+        }
+
+        [HttpGet("LandingProgrammeBatch")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<Programme>>> LandingGetAllProgrammeBatch()
+        {
+            var result = new List<Programme>();
+            using var conn = new SqlConnection(_connection);
+            using var cmd = new SqlCommand("sp_Programme_GetBatch", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                result.Add(new Programme
+                {
+                    ProgrammeId = (int)reader["ProgrammeId"],
+                    ProgrammeName = reader["ProgrammeName"].ToString(),
+                    ProgrammeCode = reader["ProgrammeCode"].ToString(),
+                    BatchName = reader["BatchName"].ToString()
                 });
             }
             return Ok(result);
