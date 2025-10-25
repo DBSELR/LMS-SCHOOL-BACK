@@ -467,7 +467,7 @@ namespace LMS.Controllers
                 cmd.Parameters.AddWithValue("@GroupId", request.groupId);
                 cmd.Parameters.AddWithValue("@Jsem", request.semester); 
                 cmd.Parameters.AddWithValue("@ssem", request.semester);
-                cmd.Parameters.AddWithValue("@RefCode", request.RefCode);
+                cmd.Parameters.AddWithValue("@RefCode", request.RefCode ?? string.Empty);
                 cmd.Parameters.Add(usernameParam);
 
                 await conn.OpenAsync();
