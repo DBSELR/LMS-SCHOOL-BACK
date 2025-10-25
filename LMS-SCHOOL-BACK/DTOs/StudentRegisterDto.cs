@@ -20,8 +20,7 @@ namespace LMS.DTOs
         public int programmeId { get; set; }
         public int groupId { get; set; }
         public int sem { get; set; }
-        //public string Semester { get; set; }
-
+        public string RefCode { get; set; }
         public int semester { get; set; }
     }
 }
