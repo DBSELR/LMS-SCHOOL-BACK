@@ -71,6 +71,17 @@ namespace LMS.Controllers
             return await reader.ReadAsync() ? Ok(ReadRow(reader)) : NotFound();
         }
 
+        [HttpGet("GetUserProfile")]
+        public async Task<IActionResult> GetUserProfile(int UserId)
+        {
+            using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            using var cmd = new SqlCommand("sp_GetUserprofile", conn) { CommandType = CommandType.StoredProcedure };
+            cmd.Parameters.AddWithValue("@UserId", UserId);
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            return await reader.ReadAsync() ? Ok(ReadRow(reader)) : NotFound();
+        }
+
         //[HttpPost]
         //public async Task<IActionResult> CreateUser([FromBody] RegisterUserRequest dto)
         //{
