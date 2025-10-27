@@ -53,6 +53,14 @@ namespace LMS.Controllers
             //public List<SubMenuDto> SubMenus { get; set; } = new();
         }
 
+        public class ChangePasswordRequest
+        {
+            public int UserId { get; set; }
+            public string OldPassword { get; set; }
+            public string NewPassword { get; set; }
+        }
+
+
         [HttpPost("Login")]
         public async Task<ActionResult<string>> Login([FromBody] LoginRequest loginRequest)
         {
@@ -175,8 +183,6 @@ namespace LMS.Controllers
             });
         }
 
-
-
         //[HttpPost("Login")]
         //public async Task<ActionResult<string>> Login([FromBody] LoginRequest loginRequest)
         //{
@@ -275,6 +281,56 @@ namespace LMS.Controllers
 
         //    return new JwtSecurityTokenHandler().WriteToken(token);
         //}
+
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var connStr = _configuration.GetConnectionString("DefaultConnection");
+            string currentHash = null;
+
+            // Step 1: Get the current hash from DB
+            using (var conn = new SqlConnection(connStr))
+            using (var cmd = new SqlCommand("sp_ChangeUserPassword", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@UserId", request.UserId);
+                cmd.Parameters.AddWithValue("@OldPassword", request.OldPassword); // not used inside SP
+
+                await conn.OpenAsync();
+                var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    currentHash = reader["CurrentHash"]?.ToString();
+                }
+            }
+
+            if (string.IsNullOrEmpty(currentHash))
+                return NotFound(new { message = "User not found." });
+
+            // Step 2: Verify old password
+            bool isOldPasswordValid = BCrypt.Net.BCrypt.Verify(request.OldPassword, currentHash);
+            if (!isOldPasswordValid)
+                return Unauthorized(new { message = "Old password is incorrect." });
+
+            // Step 3: Hash new password
+            string newHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+
+            // Step 4: Update DB with new password hash
+            using (var conn = new SqlConnection(connStr))
+            using (var cmd = new SqlCommand("sp_UpdateUserPassword", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@UserId", request.UserId);
+                cmd.Parameters.AddWithValue("@NewPasswordHash", newHash);
+
+                await conn.OpenAsync();
+                await cmd.ExecuteNonQueryAsync();
+            }
+
+            // Step 5: Respond
+            return Ok(new { message = "Password changed successfully." });
+        }
+
     }
 
     public class LoginRequest
