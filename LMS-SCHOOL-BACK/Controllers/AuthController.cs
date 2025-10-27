@@ -288,7 +288,6 @@ namespace LMS.Controllers
             var connStr = _configuration.GetConnectionString("DefaultConnection");
             string currentHash = null;
 
-            // Step 1: Get the current hash from DB
             using (var conn = new SqlConnection(connStr))
             using (var cmd = new SqlCommand("sp_GetChangeUserPassword", conn))
             {
