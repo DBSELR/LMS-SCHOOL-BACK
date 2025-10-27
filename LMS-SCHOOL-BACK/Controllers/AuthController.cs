@@ -290,7 +290,7 @@ namespace LMS.Controllers
 
             // Step 1: Get the current hash from DB
             using (var conn = new SqlConnection(connStr))
-            using (var cmd = new SqlCommand("sp_ChangeUserPassword", conn))
+            using (var cmd = new SqlCommand("sp_GetChangeUserPassword", conn))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@UserId", request.UserId);
