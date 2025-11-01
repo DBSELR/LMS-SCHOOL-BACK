@@ -556,6 +556,21 @@ namespace LMS.Controllers
             return Ok(result);
         }
 
+        [HttpGet("GetUniqueBatches")]
+        public async Task<IActionResult> GetUniqueBatches()
+        {
+            var result = new List<object>();
+            using var conn = new SqlConnection(_connection);
+            using var cmd = new SqlCommand("sp_GetUniqueBatches", conn) { CommandType = CommandType.StoredProcedure };
+
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+                result.Add(ReadRow(reader));
+
+            return Ok(result);
+        }
+
         [HttpGet("GetBatchById")]
         public async Task<IActionResult> GetBatchById(int Bid)
         {
@@ -580,6 +595,22 @@ namespace LMS.Controllers
             using var cmd = new SqlCommand("sp_Programme_GetProgrammesByBatch", conn)
             { CommandType = CommandType.StoredProcedure };
             cmd.Parameters.AddWithValue("@bid", bid);
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+                result.Add(ReadRow(reader));
+
+            return Ok(result);
+        }
+
+        [HttpGet("GetProgrammesByBatchName")]
+        public async Task<IActionResult> GetProgrammesByBatchName(string batch)
+        {
+            var result = new List<object>();
+            using var conn = new SqlConnection(_connection);
+            using var cmd = new SqlCommand("sp_Programme_GetProgrammesByBatchName", conn)
+            { CommandType = CommandType.StoredProcedure };
+            cmd.Parameters.AddWithValue("@batch", batch);
             await conn.OpenAsync();
             using var reader = await cmd.ExecuteReaderAsync();
             while (await reader.ReadAsync())
