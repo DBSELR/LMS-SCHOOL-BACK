@@ -420,20 +420,27 @@ namespace LMS.Services
 
         private async Task<string> FetchAccessTokenAsync()
         {
-            string url;
+            // Decide base URL based on environment
+            string baseAuthUrl;
 
             if (string.Equals(_options.Environment, "PRODUCTION", StringComparison.OrdinalIgnoreCase))
             {
-                // ✅ LIVE
-                url = "https://api.phonepe.com/apis/identity-manager/v3/token";
+                // ✅ LIVE (from PhonePe docs)
+                // Base for auth: https://api.phonepe.com/apis/identity-manager
+                baseAuthUrl = "https://api.phonepe.com/apis/identity-manager";
             }
             else
             {
-                // ✅ UAT / SANDBOX – keep old preprod URL (or equivalent from docs)
-                url = "https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token";
+                // ✅ UAT / SANDBOX
+                // Base for auth: https://api-preprod.phonepe.com/apis/pg-sandbox
+                baseAuthUrl = "https://api-preprod.phonepe.com/apis/pg-sandbox";
             }
 
+            // Common endpoint for both envs
+            var url = $"{baseAuthUrl}/v1/oauth/token";
+
             using var client = new HttpClient();
+
             var content = new FormUrlEncodedContent(new[]
             {
         new KeyValuePair<string, string>("client_id", _options.ClientId),
@@ -447,8 +454,10 @@ namespace LMS.Services
 
             if (!resp.IsSuccessStatusCode)
             {
+                // This will go to your server logs - **very important** for debugging
                 _logger.LogError("PhonePe auth token failed: {Status} {Body}",
                     resp.StatusCode, json);
+
                 throw new Exception("Unable to get PhonePe access token.");
             }
 
