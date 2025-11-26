@@ -200,10 +200,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "https://5mantralms.dbasesolutions.in", "https://www.5mantralms.dbasesolutions.in", "https://5mantra.dbasesolutions.in", "https://www.5mantra.dbasesolutions.in", "https://5mantramentor.com", "https://www.5mantramentor.com")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); //  CRITICAL for cookie/session use
+        
         policy.WithOrigins(
                 "http://localhost:3000",
                 "http://localhost:3001",
