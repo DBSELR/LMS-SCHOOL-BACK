@@ -375,23 +375,72 @@ namespace LMS.Services
         }
 
 
+        //       private async Task<string> FetchAccessTokenAsync()
+        //{
+        //    string url;
+
+        //    if (string.Equals(_options.Environment, "PRODUCTION", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        // ✅ LIVE
+        //        url = "https://api.phonepe.com/apis/identity-manager/v3/token";
+        //    }
+        //    else
+        //    {
+        //        // ✅ UAT / SANDBOX – keep old preprod URL (or equivalent from docs)
+        //        url = "https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token";
+        //    }
+
+        //    using var client = new HttpClient();
+        //    var content = new FormUrlEncodedContent(new[]
+        //    {
+        //        new KeyValuePair<string, string>("client_id", _options.ClientId),
+        //        new KeyValuePair<string, string>("client_version", _options.ClientVersion.ToString()),
+        //        new KeyValuePair<string, string>("client_secret", _options.ClientSecret),
+        //        new KeyValuePair<string, string>("grant_type", "client_credentials")
+        //    });
+
+        //    var resp = await client.PostAsync(url, content);
+        //    var json = await resp.Content.ReadAsStringAsync();
+
+        //    if (!resp.IsSuccessStatusCode)
+        //    {
+        //        _logger.LogError("PhonePe auth token failed: {Status} {Body}",
+        //            resp.StatusCode, json);
+        //        throw new Exception("Unable to get PhonePe access token.");
+        //    }
+
+        //    using var doc = JsonDocument.Parse(json);
+        //    var root = doc.RootElement;
+
+        //    if (root.TryGetProperty("access_token", out var tokenEl))
+        //        return tokenEl.GetString();
+
+        //    throw new Exception("PhonePe access token missing in response.");
+        //}
+
         private async Task<string> FetchAccessTokenAsync()
         {
-            var baseAuthUrl = string.Equals(_options.Environment, "PRODUCTION",
-                    StringComparison.OrdinalIgnoreCase)
-                ? "https://api.phonepe.com/apis/pg"
-                : "https://api-preprod.phonepe.com/apis/pg-sandbox";
+            string url;
 
-            var url = $"{baseAuthUrl}/v1/oauth/token";  // OAuth for Standard Checkout :contentReference[oaicite:1]{index=1}
+            if (string.Equals(_options.Environment, "PRODUCTION", StringComparison.OrdinalIgnoreCase))
+            {
+                // ✅ LIVE
+                url = "https://api.phonepe.com/apis/identity-manager/v3/token";
+            }
+            else
+            {
+                // ✅ UAT / SANDBOX – keep old preprod URL (or equivalent from docs)
+                url = "https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token";
+            }
 
             using var client = new HttpClient();
             var content = new FormUrlEncodedContent(new[]
             {
-                new KeyValuePair<string, string>("client_id", _options.ClientId),
-                new KeyValuePair<string, string>("client_version", _options.ClientVersion.ToString()),
-                new KeyValuePair<string, string>("client_secret", _options.ClientSecret),
-                new KeyValuePair<string, string>("grant_type", "client_credentials")
-            });
+        new KeyValuePair<string, string>("client_id", _options.ClientId),
+        new KeyValuePair<string, string>("client_version", _options.ClientVersion.ToString()),
+        new KeyValuePair<string, string>("client_secret", _options.ClientSecret),
+        new KeyValuePair<string, string>("grant_type", "client_credentials")
+    });
 
             var resp = await client.PostAsync(url, content);
             var json = await resp.Content.ReadAsStringAsync();
@@ -411,5 +460,6 @@ namespace LMS.Services
 
             throw new Exception("PhonePe access token missing in response.");
         }
+
     }
 }
