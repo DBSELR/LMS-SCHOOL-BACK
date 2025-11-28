@@ -75,11 +75,14 @@
         public string Message { get; set; }
         public DateTime? PaymentTimeUtc { get; set; }
 
-        public string InstrumentType { get; set; }  // NET_BANKING
-        public string BankId { get; set; }          // ICIC / SBIN
-        public string Arn { get; set; }
-        public string Brn { get; set; }
+        // New fields from RawStatusJson
+        public string PaymentMode { get; set; }           // e.g. "UPI_QR"
+        public string RailType { get; set; }              // e.g. "UPI"
+        public string RailUtr { get; set; }               // UTR
+        public string RailUpiTransactionId { get; set; }  // upiTransactionId
+        public string RailVpa { get; set; }               // vpa
     }
+
 
 
 }
