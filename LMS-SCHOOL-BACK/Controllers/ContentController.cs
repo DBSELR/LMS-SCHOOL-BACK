@@ -47,6 +47,7 @@ namespace LMS.Controllers
     [FromForm] string? description,
     [FromForm] string? contentType,
     [FromForm] int unitId,
+    [FromForm] string? userType,
     [FromForm] string? vurl)
         {
             string? fileUrl = null;
@@ -88,6 +89,7 @@ namespace LMS.Controllers
             cmd.Parameters.AddWithValue("@CourseId", courseId);
             cmd.Parameters.AddWithValue("@Title", title ?? "");
             cmd.Parameters.AddWithValue("@Description", description ?? "");
+            cmd.Parameters.AddWithValue("@userType", userType ?? "");
 
             // Pass SQL NULL when no file uploaded
             var pFileUrl = cmd.Parameters.Add("@FileUrl", SqlDbType.NVarChar, 1024);
