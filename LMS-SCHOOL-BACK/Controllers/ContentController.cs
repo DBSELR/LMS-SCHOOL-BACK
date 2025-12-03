@@ -119,6 +119,7 @@ namespace LMS.Controllers
                 uploadedAt = uploadedAtUtc,
                 unitId,
                 vurl,
+                userType,
                 storedFileName
             });
         }
