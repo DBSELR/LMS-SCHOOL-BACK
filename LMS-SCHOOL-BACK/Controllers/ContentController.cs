@@ -211,7 +211,7 @@ namespace LMS.Controllers
         }
 
         [HttpGet("Course/{courseId}")]
-        public async Task<IActionResult> GetByCourse(int courseId, int userid)
+        public async Task<IActionResult> GetByCourse(int courseId, int userId)
         {
             var result = new List<Dictionary<string, object>>();
             using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
@@ -220,7 +220,7 @@ namespace LMS.Controllers
                 CommandType = CommandType.StoredProcedure
             };
             cmd.Parameters.AddWithValue("@CourseId", courseId);
-            cmd.Parameters.AddWithValue("@userid", userid);
+            cmd.Parameters.AddWithValue("@userId", userId);
 
             await conn.OpenAsync();
             using var reader = await cmd.ExecuteReaderAsync();
