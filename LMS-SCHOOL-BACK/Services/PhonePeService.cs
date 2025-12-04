@@ -540,6 +540,7 @@ namespace LMS.Services
         }
 
         // Simple POCO for internal use (no EF)
+        // Simple POCO for internal use (no EF)
         private class PaymentTxRow
         {
             public string MerchantOrderId { get; set; }
@@ -549,20 +550,28 @@ namespace LMS.Services
         }
 
         private async Task InsertPendingTransactionAsync(
-            string merchantOrderId, string username, decimal amount)
+            string merchantOrderId,
+            string username,
+            decimal amount,
+            string mobileNo,
+            string name)
         {
             using var con = new SqlConnection(_connectionString);
             using var cmd = new SqlCommand("SP_PhonePe_InsertTransaction", con);
             cmd.CommandType = CommandType.StoredProcedure;
 
             cmd.Parameters.AddWithValue("@MerchantOrderId", merchantOrderId);
-            cmd.Parameters.AddWithValue("@Username", username);
+            cmd.Parameters.AddWithValue("@Username", (object?)username ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@Amount", amount);
             cmd.Parameters.AddWithValue("@Status", "PENDING");
+            cmd.Parameters.AddWithValue("@MobileNo", (object?)mobileNo ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Name", (object?)name ?? DBNull.Value);
 
             await con.OpenAsync();
             await cmd.ExecuteNonQueryAsync();
         }
+
+
 
         private async Task<PaymentTxRow?> GetTransactionAsync(string merchantOrderId)
         {
@@ -626,13 +635,15 @@ namespace LMS.Services
         }
 
         /// <summary>
-        /// 1) Insert PENDING row via SP
+        /// 1) Insert PENDING row via SP (now with mobileNo + name)
         /// 2) Call PhonePe SDK to generate payment URL
         /// 3) Return redirectUrl + MerchantOrderId
         /// </summary>
         public async Task<PhonePeInitiateResult> InitiatePaymentAsync(
-            string username,
-            decimal amountRupees)
+     string username,
+     decimal amountRupees,
+     string mobileNo,
+     string name)
         {
             if (amountRupees <= 0)
                 throw new ArgumentException("Amount must be > 0", nameof(amountRupees));
@@ -640,8 +651,16 @@ namespace LMS.Services
             var amountPaise = (long)(amountRupees * 100);
             var merchantOrderId = $"DBS_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
 
-            await InsertPendingTransactionAsync(merchantOrderId, username, amountRupees);
+            // 1️⃣ Save in DB as PENDING via SP (with mobile & name)
+            await InsertPendingTransactionAsync(
+                merchantOrderId,
+                username,
+                amountRupees,
+                mobileNo,
+                name
+            );
 
+            // 2️⃣ Redirect URL for after PhonePe payment
             var redirectWithOrder = BuildRedirectUrlWithOrder(merchantOrderId);
 
             var payRequest = StandardCheckoutPayRequest
@@ -656,8 +675,7 @@ namespace LMS.Services
             _logger.LogInformation("PhonePe PayRequest: {PayRequest}",
                 JsonSerializer.Serialize(payRequest));
 
-            StandardCheckoutPayResponse response =
-                await _checkoutClient.Pay(payRequest);
+            var response = await _checkoutClient.Pay(payRequest);
 
             _logger.LogInformation("PhonePe PayResponse: {Response}",
                 JsonSerializer.Serialize(response));
@@ -671,6 +689,7 @@ namespace LMS.Services
                 MerchantOrderId = merchantOrderId
             };
         }
+
 
         /// <summary>
         /// Uses PhonePe Order Status API, updates DB via SP, returns DTO to frontend.
@@ -882,5 +901,181 @@ namespace LMS.Services
 
             throw new Exception("PhonePe access token missing in response.");
         }
+
+
+        // Get all MerchantOrderIds where StateRaw + PhonePeOrderId are null/empty
+        private async Task<List<PhonePeMissingTransactionDto>> GetMissingTransactionsAsync()
+        {
+            var list = new List<PhonePeMissingTransactionDto>();
+
+            using var con = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand("SP_PhonePe_ListMissingTransactions", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            await con.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                var dto = new PhonePeMissingTransactionDto
+                {
+                    PaymentTransactionId = reader["Id"] != DBNull.Value ? (int)reader["Id"] : 0,
+                    MerchantOrderId = reader["MerchantOrderId"]?.ToString(),
+                    Username = reader["Username"]?.ToString(),
+                    Amount = reader["Amount"] != DBNull.Value ? (decimal)reader["Amount"] : 0m,
+                    ExistingStatus = reader["ExistingStatus"]?.ToString()
+                };
+
+                if (!string.IsNullOrWhiteSpace(dto.MerchantOrderId))
+                    list.Add(dto);
+            }
+
+            return list;
+        }
+
+
+        private async Task InsertMissingLogAsync(
+    string merchantOrderId,
+    string username,
+    decimal amount,
+    string status,
+    string stateRaw,
+    string phonePeOrderId,
+    string phonePeTxnId,
+    string paymentMode,
+    string railType,
+    string railUtr,
+    string railUpi,
+    string railVpa,
+    bool isSuccess,
+    string errorMessage)
+        {
+            using var con = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand("SP_PhonePe_InsertMissingTransactionLog", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@MerchantOrderId", merchantOrderId);
+            cmd.Parameters.AddWithValue("@Username", (object?)username ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Amount", amount);
+            cmd.Parameters.AddWithValue("@Status", (object?)status ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@StateRaw", (object?)stateRaw ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@PhonePeOrderId", (object?)phonePeOrderId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@PhonePeTransactionId", (object?)phonePeTxnId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@PaymentMode", (object?)paymentMode ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RailType", (object?)railType ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RailUTR", (object?)railUtr ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RailUpiTransactionId", (object?)railUpi ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RailVPA", (object?)railVpa ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@IsSuccess", isSuccess);
+            cmd.Parameters.AddWithValue("@ErrorMessage", (object?)errorMessage ?? DBNull.Value);
+
+            await con.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+
+        public async Task<PhonePeMissingRecoveryResultDto> RecoverMissingTransactionAsync(string merchantOrderId)
+        {
+            if (string.IsNullOrWhiteSpace(merchantOrderId))
+                throw new ArgumentException("MerchantOrderId is required.", nameof(merchantOrderId));
+
+            PaymentStatusDto statusDto = null;
+            bool isSuccess = false;
+            string errorMessage = null;
+
+            try
+            {
+                // This will:
+                // 1) Call PhonePe Order Status API
+                // 2) Update PaymentTransactions via SP_PhonePe_UpdateTransactionStatus
+                // 3) Return structured status
+                statusDto = await GetAndUpdatePaymentStatusAsync(merchantOrderId);
+                isSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                // We still want to log the failure in the missing table
+                errorMessage = ex.Message;
+            }
+
+            // If call failed, we still want original transaction data for logging
+            string username = null;
+            decimal amount = 0m;
+            string existingStatus = null;
+
+            var existingTxn = await GetTransactionAsync(merchantOrderId);
+            if (existingTxn != null)
+            {
+                username = existingTxn.Username;
+                amount = existingTxn.Amount;
+                existingStatus = existingTxn.Status;
+            }
+
+            // Decide final values for log
+            string finalStatus = statusDto?.Status ?? existingStatus;
+            string finalStateRaw = statusDto?.StateRaw;
+            string phonePeOrderId = statusDto?.PhonePeOrderId;
+            string phonePeTxnId = statusDto?.PhonePeTransactionId;
+
+            string paymentMode = statusDto?.PaymentMode;
+            string railType = statusDto?.RailType;
+            string railUtr = statusDto?.RailUtr;
+            string railUpi = statusDto?.RailUpiTransactionId;
+            string railVpa = statusDto?.RailVpa;
+
+            // Insert into PhonePeMissing_Transactions
+            await InsertMissingLogAsync(
+                merchantOrderId,
+                username,
+                amount,
+                finalStatus,
+                finalStateRaw,
+                phonePeOrderId,
+                phonePeTxnId,
+                paymentMode,
+                railType,
+                railUtr,
+                railUpi,
+                railVpa,
+                isSuccess,
+                errorMessage
+            );
+
+            // Build response to send back to API caller
+            var result = new PhonePeMissingRecoveryResultDto
+            {
+                MerchantOrderId = merchantOrderId,
+                Username = username,
+                Amount = amount,
+                IsSuccess = isSuccess,
+                Status = finalStatus,
+                StateRaw = finalStateRaw,
+                PhonePeOrderId = phonePeOrderId,
+                PhonePeTransactionId = phonePeTxnId,
+                Message = isSuccess
+                    ? (statusDto?.Message ?? "Status fetched successfully from PhonePe.")
+                    : (errorMessage ?? "Unable to fetch status from PhonePe.")
+            };
+
+            return result;
+        }
+
+        public async Task<List<PhonePeMissingRecoveryResultDto>> RecoverAllMissingTransactionsAsync()
+        {
+            var missing = await GetMissingTransactionsAsync();
+            var results = new List<PhonePeMissingRecoveryResultDto>();
+
+            foreach (var row in missing)
+            {
+                var res = await RecoverMissingTransactionAsync(row.MerchantOrderId);
+                results.Add(res);
+            }
+
+            return results;
+        }
+
+
+
+
     }
 }

@@ -36,7 +36,10 @@ namespace LMS.Controllers
             {
                 var result = await _phonePeService.InitiatePaymentAsync(
                     dto.Username,
-                    dto.Amount);
+                    dto.Amount,
+                    dto.MobileNumber,  // ✅ mobile
+                    dto.Name           // ✅ full name
+                );
 
                 return Ok(new
                 {
@@ -98,6 +101,45 @@ namespace LMS.Controllers
             }
 
             return Ok();
+        }
+
+        // 🔹 1) Recover a SINGLE merchantOrderId
+        // POST: /api/payments/phonepe/recover-missing/one
+        [HttpPost("phonepe/recover-missing/one")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RecoverMissingOne([FromBody] PhonePeRecoverMissingSingleRequestDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.MerchantOrderId))
+                return BadRequest("MerchantOrderId is required.");
+
+            try
+            {
+                var result = await _phonePeService.RecoverMissingTransactionAsync(dto.MerchantOrderId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error recovering single PhonePe missing transaction.");
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        // 🔹 2) Recover ALL missing transactions (StateRaw + PhonePeOrderId null)
+        // POST: /api/payments/phonepe/recover-missing/all
+        [HttpPost("phonepe/recover-missing/all")]
+        [AllowAnonymous] // or make it [Authorize] if you want only admin to run this
+        public async Task<IActionResult> RecoverMissingAll()
+        {
+            try
+            {
+                var results = await _phonePeService.RecoverAllMissingTransactionsAsync();
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error recovering all PhonePe missing transactions.");
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
     }
 }
