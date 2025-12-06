@@ -340,6 +340,11 @@ namespace LMS.Controllers
                 cmd.Parameters.AddWithValue("@Jsem", request.semester);
                 cmd.Parameters.AddWithValue("@ssem", request.semester);
                 cmd.Parameters.AddWithValue("@RefCode", request.RefCode);
+                // NEW: District can be null/empty – send DBNull for empty
+                var district = string.IsNullOrWhiteSpace(request.District)
+                    ? (object)DBNull.Value
+                    : request.District;
+                cmd.Parameters.AddWithValue("@District", district);
                 cmd.Parameters.Add(usernameParam);
 
                 await conn.OpenAsync();
@@ -447,9 +452,16 @@ namespace LMS.Controllers
             try
             {
                 await using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-                await using var cmd = new SqlCommand("sp_Student_Register", conn) { CommandType = CommandType.StoredProcedure };
+                await using var cmd = new SqlCommand("sp_Student_Register", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
 
-                var usernameParam = new SqlParameter("@Username", SqlDbType.NVarChar, 7) { Direction = ParameterDirection.Output };
+                var usernameParam = new SqlParameter("@Username", SqlDbType.NVarChar, 7)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
                 cmd.Parameters.AddWithValue("@Email", request.Email ?? string.Empty);
                 cmd.Parameters.AddWithValue("@PasswordHash", "TEMP");
                 cmd.Parameters.AddWithValue("@FirstName", request.FirstName ?? string.Empty);
@@ -466,9 +478,18 @@ namespace LMS.Controllers
                 cmd.Parameters.AddWithValue("@BatchName", request.Batch ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@ProgrammeId", request.programmeId);
                 cmd.Parameters.AddWithValue("@GroupId", request.groupId);
-                cmd.Parameters.AddWithValue("@Jsem", request.semester); 
+                cmd.Parameters.AddWithValue("@Jsem", request.semester);
                 cmd.Parameters.AddWithValue("@ssem", request.semester);
-                cmd.Parameters.AddWithValue("@RefCode", request.RefCode);
+
+                // RefCode can be null/optional
+                cmd.Parameters.AddWithValue("@RefCode", (object?)request.RefCode ?? DBNull.Value);
+
+                // NEW: District can be null/empty – send DBNull for empty
+                var district = string.IsNullOrWhiteSpace(request.District)
+                    ? (object)DBNull.Value
+                    : request.District;
+                cmd.Parameters.AddWithValue("@District", district);
+
                 cmd.Parameters.Add(usernameParam);
 
                 await conn.OpenAsync();
@@ -502,21 +523,14 @@ namespace LMS.Controllers
                     }
                 }
 
-
                 if (gotAnyRows && !success)
                 {
                     return Conflict(new
                     {
                         error = "Duplicate fields found",
                         conflicts
-                        // e.g. [
-                        //   { ConflictType: "EMAIL_EXISTS", Details: "Ram@dbs.com" },
-                        //   { ConflictType: "PHONE_EXISTS", Details: "903010..." },
-                        //   { ConflictType: "NAME_PAIR_EXISTS", Details: "Ram DBS" }
-                        // ]
                     });
                 }
-
 
                 if (string.IsNullOrEmpty(generatedUsernameFromRow))
                     generatedUsernameFromRow = usernameParam.Value?.ToString();
@@ -528,17 +542,13 @@ namespace LMS.Controllers
                 var rawPassword = generatedUsernameFromRow;
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
 
-                using (var updateCmd = new SqlCommand("UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn))
+                using (var updateCmd = new SqlCommand(
+                           "UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn))
                 {
                     updateCmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
                     updateCmd.Parameters.AddWithValue("@Username", generatedUsernameFromRow);
                     await updateCmd.ExecuteNonQueryAsync();
                 }
-
-
-                // using var userIdCmd = new SqlCommand("SELECT UserId FROM Users WHERE Username = @Username", conn);
-                // userIdCmd.Parameters.AddWithValue("@Username", generatedUsernameFromRow);
-                // var userIdObj = await userIdCmd.ExecuteScalarAsync();
 
                 return Ok(new
                 {
@@ -549,7 +559,6 @@ namespace LMS.Controllers
             }
             catch (SqlException ex)
             {
-                // If you add DB unique indexes, handle those too
                 if (ex.Number == 2627 || ex.Number == 2601)
                 {
                     return Conflict(new
@@ -565,6 +574,7 @@ namespace LMS.Controllers
                 return StatusCode(500, new { error = $"Unexpected error: {ex.Message}" });
             }
         }
+
 
 
 
