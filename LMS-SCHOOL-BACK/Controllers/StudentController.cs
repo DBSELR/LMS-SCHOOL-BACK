@@ -482,7 +482,6 @@ namespace LMS.Controllers
                 cmd.Parameters.AddWithValue("@ssem", request.semester);
                 cmd.Parameters.AddWithValue("@RefCode", request.RefCode);
 
-
                 var district = string.IsNullOrWhiteSpace(request.District)
                     ? (object)DBNull.Value
                     : request.District;
