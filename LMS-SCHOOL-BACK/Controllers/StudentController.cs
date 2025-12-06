@@ -484,7 +484,7 @@ namespace LMS.Controllers
                 // RefCode can be null/optional
                 cmd.Parameters.AddWithValue("@RefCode", (object?)request.RefCode ?? DBNull.Value);
 
-                // NEW: District can be null/empty – send DBNull for empty
+              
                 var district = string.IsNullOrWhiteSpace(request.District)
                     ? (object)DBNull.Value
                     : request.District;
