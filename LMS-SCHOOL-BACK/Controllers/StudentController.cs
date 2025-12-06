@@ -489,7 +489,6 @@ namespace LMS.Controllers
                     ? (object)DBNull.Value
                     : request.District;
                 cmd.Parameters.AddWithValue("@District", district);
-
                 cmd.Parameters.Add(usernameParam);
 
                 await conn.OpenAsync();
