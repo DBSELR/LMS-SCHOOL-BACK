@@ -480,11 +480,9 @@ namespace LMS.Controllers
                 cmd.Parameters.AddWithValue("@GroupId", request.groupId);
                 cmd.Parameters.AddWithValue("@Jsem", request.semester);
                 cmd.Parameters.AddWithValue("@ssem", request.semester);
+                cmd.Parameters.AddWithValue("@RefCode", request.RefCode);
 
-                // RefCode can be null/optional
-                cmd.Parameters.AddWithValue("@RefCode", (object?)request.RefCode ?? DBNull.Value);
 
-              
                 var district = string.IsNullOrWhiteSpace(request.District)
                     ? (object)DBNull.Value
                     : request.District;

@@ -14,9 +14,9 @@ namespace LMS.DTOs
         public string State { get; set; }
         public string City { get; set; }
         public string ZipCode { get; set; }
-        public string ProfilePhotoUrl { get; set; }
+        public string? ProfilePhotoUrl { get; set; }
         public string Batch { get; set; }
-        public string Programme { get; set; }
+        public string? Programme { get; set; }
         public int programmeId { get; set; }
         public int groupId { get; set; }
         public int sem { get; set; }
