@@ -206,6 +206,8 @@ builder.Services.AddCors(options =>
                 "http://localhost:3001",
                 "https://5mantralms.dbasesolutions.in",
                 "https://www.5mantralms.dbasesolutions.in",
+                "https://lms.5mantramentor.com",
+                "https://www.lms.5mantramentor.com",
                 "https://5mantra.dbasesolutions.in",
                 "https://www.5mantra.dbasesolutions.in",
                 "https://5mantramentor.com",
