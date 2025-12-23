@@ -55,6 +55,11 @@
         public string MobileNumber { get; set; }  // from formData.phoneNumber
         public decimal Amount { get; set; }       // in rupees
         public string Name { get; set; }          // full name from frontend
+
+        // New fields requested
+        public string BatchName { get; set; }
+        public int? ProgrammeId { get; set; }
+        public int? GroupId { get; set; }
     }
 
 

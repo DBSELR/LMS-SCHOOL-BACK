@@ -38,7 +38,10 @@ namespace LMS.Controllers
                     dto.Username,
                     dto.Amount,
                     dto.MobileNumber,  // ✅ mobile
-                    dto.Name           // ✅ full name
+                    dto.Name,          // ✅ full name
+                    dto.BatchName,     // new
+                    dto.ProgrammeId,   // new
+                    dto.GroupId        // new
                 );
 
                 return Ok(new
