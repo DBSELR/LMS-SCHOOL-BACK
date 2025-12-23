@@ -76,7 +76,9 @@ namespace LMS.Controllers
             using (var cmd = new SqlCommand("sp_Auth_LoginWithFeeCheck", connAuth))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Username", loginRequest.Username);
+                //cmd.Parameters.AddWithValue("@Username", loginRequest.Username);
+                cmd.Parameters.AddWithValue("@LoginId", loginRequest.Username);
+
 
                 await connAuth.OpenAsync();
                 using var reader = await cmd.ExecuteReaderAsync();
