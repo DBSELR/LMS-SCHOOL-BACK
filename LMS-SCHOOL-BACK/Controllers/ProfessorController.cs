@@ -137,6 +137,7 @@
                         EducationalBackground = reader.IsDBNull(17) ? null : reader.GetString(17),
                         ResearchInterests = reader.IsDBNull(18) ? null : reader.GetString(18),
                         TeachingRating = reader.IsDBNull(19) ? (double?)null : reader.GetDouble(19),
+                        username = reader.IsDBNull(20) ? null : reader.GetString(20),
                         //TeachingRating = reader.IsDBNull(17) ? (double?)null : Convert.ToDouble(reader[17]),
                         AssignedCourses = new List<CourseDto>()
                     };

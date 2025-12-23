@@ -25,6 +25,7 @@ public class ProfessorDto
     public string EducationalBackground { get; set; }
     public string ResearchInterests { get; set; }
     public double? TeachingRating { get; set; }
+    public string username { get; set; }
     public List<CourseDto> AssignedCourses { get; set; }  // <-- Added this line
 
     ////////////////////
