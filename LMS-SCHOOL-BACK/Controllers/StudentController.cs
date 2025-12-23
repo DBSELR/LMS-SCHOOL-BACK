@@ -535,16 +535,29 @@ namespace LMS.Controllers
                     return StatusCode(500, "Username generation failed.");
 
                 // Success: first-time password = username (hash and store)
-                var rawPassword = generatedUsernameFromRow;
+                //var rawPassword = generatedUsernameFromRow;
+                //var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
+
+                // Success: first-time password = PhoneNumber
+                var rawPassword = request.PhoneNumber;   //  PHONE NUMBER
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
 
                 using (var updateCmd = new SqlCommand(
-                           "UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn))
+           "UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn))
                 {
                     updateCmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
                     updateCmd.Parameters.AddWithValue("@Username", generatedUsernameFromRow);
                     await updateCmd.ExecuteNonQueryAsync();
                 }
+
+
+                //using (var updateCmd = new SqlCommand(
+                //           "UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn))
+                //{
+                //    updateCmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+                //    updateCmd.Parameters.AddWithValue("@Username", generatedUsernameFromRow);
+                //    await updateCmd.ExecuteNonQueryAsync();
+                //}
 
                 return Ok(new
                 {
