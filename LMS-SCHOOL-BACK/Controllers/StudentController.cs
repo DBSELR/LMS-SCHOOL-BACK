@@ -606,6 +606,23 @@ namespace LMS.Controllers
             return NotFound("Student not found.");
         }
 
+        [HttpGet("GetStudentDetailsByMobile/{mobile}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<object>> GetStudentDetailsByMobile(string mobile)
+        {
+            using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            using var cmd = new SqlCommand("sp_Student_GetStudentDetailsByMobile", conn) { CommandType = CommandType.StoredProcedure };
+
+            cmd.Parameters.AddWithValue("@PhoneNumber", mobile); 
+
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+                return Ok(ReadRow(reader));
+
+            return NotFound("Student not found.");
+        }
+
 
         [HttpGet("GetReferralDetails")]
         [AllowAnonymous]
