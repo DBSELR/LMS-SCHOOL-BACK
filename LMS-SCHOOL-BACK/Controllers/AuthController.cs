@@ -105,7 +105,7 @@ namespace LMS.Controllers
 
             // 3) Enforce fee rule for students
             if (role == "Student" && hasOverdueFees)
-                return StatusCode(403, new { message = "Access denied: Overdue fees detected." });
+                return StatusCode(403, new { message = "Access denied: Payment Pending detected." });
 
             // 4) Issue token
             var token = await _authService.GenerateJwtTokenAsync(userId, role, loginRequest.Username, 14400);
