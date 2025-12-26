@@ -444,8 +444,12 @@
                         return StatusCode(500, "Username generation failed.");
                     }
 
-                    // Success: set password = username (hash)
-                    var rawPassword = generatedUsernameFromRow;
+                    //// Success: set password = username (hash)
+                    //var rawPassword = generatedUsernameFromRow;
+                    //var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
+
+                    // Success: first-time password = PhoneNumber
+                    var rawPassword = request.PhoneNumber;   //  PHONE NUMBER
                     var hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
 
                     using (var updateCmd = new SqlCommand("UPDATE Users SET PasswordHash = @PasswordHash WHERE Username = @Username", conn))
