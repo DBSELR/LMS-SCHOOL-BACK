@@ -119,7 +119,6 @@ public class FeeController : ControllerBase
                 StudentId = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
                 Installment = reader.IsDBNull(1) ? 0 : reader.GetInt32(1),
                 AmountDue = reader.IsDBNull(2) ? 0 : reader.GetDecimal(2),
-               
                 //DueDate = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3)
                 DueDate = reader.IsDBNull(3) ? DateTime.MinValue : reader.GetDateTime(3),
                 Hid = reader.IsDBNull(4) ? 0 : reader.GetInt32(4), 
