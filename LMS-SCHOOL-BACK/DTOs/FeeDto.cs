@@ -86,8 +86,8 @@ namespace LMS.DTOs
         public string FeeHead { get; set; }
 
         public string Remarks { get; set; }
-        public string sname { get; set; }
-        public string mobile { get; set; }
+        //public string sname { get; set; }
+        //public string mobile { get; set; }
     }
 
     
